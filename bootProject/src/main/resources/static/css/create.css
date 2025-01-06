@@ -1,0 +1,17 @@
+/* src/main/resources/static/css/create.css */
+
+body {
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.btn {
+    margin-right: 10px;
+}

@@ -1,47 +1,46 @@
 package com.busanit501.bootproject.domain;
 
+import com.busanit501.bootproject.enums.Gender;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.LocalDate;
-
-@Entity
 @Getter
-@Builder
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@ToString
+@Entity
+@Table(name = "pets")
 public class Pet extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long petId; // 반려동물 ID
+    @Column(name = "pet_id")
+    private Integer petId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
-    private Long userId; // 사용자 ID (FK)
-
-    @Column(length = 100, nullable = false)
-    private String name; // 반려동물 이름
-
-    @Column(length = 50, nullable = false)
-    private String type; // 반려동물 종류
+    private String name;
 
     @Column(nullable = false)
-    private LocalDate birth; // 생년월일
+    private String type;
 
     @Column(nullable = false)
-    private String gender; // 성별 (ENUM 가능)
+    private Integer age;
 
-    @Column(columnDefinition = "TEXT")
-    private String personality; // 성격
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Gender gender;
 
     @Column(nullable = false)
-    private float weight; // 몸무게
-
-    @Column(length = 255, nullable = true)
-    private String profilePicture; // 프로필 사진 URL
+    private Double weight;
 
     @Column(nullable = false)
-    private boolean isVerified; // 인증 여부
+    private String personality;
+
+    @Column(name = "is_default", nullable = false)
+    private Boolean isDefault = false;
 }
-
