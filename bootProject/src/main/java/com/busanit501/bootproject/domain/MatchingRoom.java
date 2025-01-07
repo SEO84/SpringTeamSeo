@@ -44,6 +44,7 @@ public class MatchingRoom extends BaseEntity {
     @Column(nullable = false)
     private Long maxParticipants;
 
+    private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

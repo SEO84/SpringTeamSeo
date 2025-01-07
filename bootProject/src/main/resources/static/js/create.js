@@ -47,4 +47,25 @@ function addPetSelection() {
     petDiv.appendChild(select);
     petDiv.appendChild(removeBtn);
     container.appendChild(petDiv);
+
+    // src/main/resources/static/js/create.js
+
+
+
+}
+// 이미지 미리보기
+function previewImage(event) {
+    const fileInput = event.target;
+    const preview = document.getElementById('imagePreview');
+    if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        preview.src = '';
+        preview.style.display = 'none';
+    }
 }

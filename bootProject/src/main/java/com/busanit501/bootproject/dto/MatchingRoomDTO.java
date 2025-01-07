@@ -16,6 +16,9 @@ public class MatchingRoomDTO {
     // ★ 수정/생성 시 방을 구분하기 위한 필드
     private Long roomId;
 
+    // 이미지 URL (업로드 시 저장 경로)
+    private String imageUrl;
+
     @NotBlank(message = "제목은 필수 입력 항목입니다.")
     private String title;
 

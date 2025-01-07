@@ -1,57 +1,53 @@
 <!-- src/main/resources/templates/matching/list.html -->
-
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>매칭방 목록</title>
     <link rel="stylesheet" th:href="@{/css/list.css}">
-    <!-- Bootstrap CSS (옵션) -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* 간단한 스타일링 */
         body {
             padding: 20px;
             position: relative;
         }
-
         h1 {
             margin-bottom: 20px;
             text-align: center;
         }
-
         .table {
             margin-bottom: 20px;
         }
-
         .btn-create {
             display: block;
             margin: 0 auto;
         }
-
-        /* 로그아웃 버튼 스타일링 */
         .logout-button {
             position: absolute;
             top: 20px;
             right: 20px;
         }
+        /* 썸네일 이미지 크기 */
+        .thumb-img {
+            max-width: 80px;
+            max-height: 60px;
+        }
     </style>
 </head>
 <body>
-<!-- 로그아웃 버튼 -->
 <div class="logout-button">
     <a href="#" onclick="logout()" class="btn btn-danger btn-sm">로그아웃</a>
 </div>
 
 <h1>매칭방 목록</h1>
-
 <!-- 성공 메시지 -->
 <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
 
-<!-- 매칭방 목록 테이블 -->
 <table class="table table-bordered">
     <thead class="thead-dark">
     <tr>
+        <!-- 추가: 이미지 열 -->
+        <th>이미지</th>
         <th>제목</th>
         <th>장소</th>
         <th>날짜</th>
@@ -63,6 +59,17 @@
     </thead>
     <tbody>
     <tr th:each="room : ${rooms}">
+        <!-- 이미지 표시 -->
+        <td>
+            <img th:if="${room.imageUrl != null}"
+                 th:src="${room.imageUrl}"
+                 alt="이미지"
+                 class="thumb-img"/>
+            <img th:if="${room.imageUrl == null}"
+                 th:src="@{/img/thumbnail-default.svg}"
+                 alt="기본이미지"
+                 class="thumb-img"/>
+        </td>
         <td th:text="${room.title}">Title</td>
         <td th:text="${room.place}">Place</td>
         <td th:text="${#temporals.format(room.meetingDate, 'yyyy-MM-dd')}">Date</td>
@@ -76,22 +83,16 @@
     </tbody>
 </table>
 
-<!-- 매칭방 생성 버튼 -->
 <a th:href="@{/matching/create}" class="btn btn-success btn-create">매칭방 생성</a>
 
-<!-- 로그아웃 스크립트 -->
 <script>
     function logout() {
-        // 로그아웃을 위한 간단한 GET 요청
-        fetch('/logout', {
-            method: 'GET',
-            credentials: 'include'
-        })
+        // 로그아웃 예시
+        fetch('/logout', { method: 'GET', credentials: 'include' })
             .then(response => {
                 if (response.redirected) {
                     window.location.href = response.url;
                 } else {
-                    // 로그아웃 후 직접 리다이렉트할 URL을 설정
                     window.location.href = '/user/login';
                 }
             })
@@ -102,7 +103,6 @@
     }
 </script>
 
-<!-- Bootstrap JS (옵션) -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

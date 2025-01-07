@@ -10,13 +10,14 @@ import com.busanit501.bootproject.repository.MatchingRoomRepository;
 import com.busanit501.bootproject.repository.PetRepository;
 import com.busanit501.bootproject.repository.RoomParticipantRepository;
 import com.busanit501.bootproject.repository.UserRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Log4j2
 @Service
 public class MatchingService {
 
@@ -57,7 +58,9 @@ public class MatchingService {
         room.setMeetingTime(dto.getMeetingTime());
         room.setMaxParticipants(dto.getMaxParticipants());
         room.setUser(hostUser); // hostUser를 사용자 필드에도 넣고 있음
-
+        log.info("여긴가?");
+        room.setImageUrl(dto.getImageUrl());
+        log.info("여긴가?2");
         MatchingRoom savedRoom = roomRepository.save(room);
 
         // 호스트 펫들 등록
