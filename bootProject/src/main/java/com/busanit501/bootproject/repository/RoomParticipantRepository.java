@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RoomParticipantRepository extends JpaRepository<RoomParticipant, Integer> {
+public interface RoomParticipantRepository extends JpaRepository<RoomParticipant, Long> {
 
     /**
      * 특정 매칭방과 사용자에 대한 참가자 목록을 조회합니다.
@@ -34,7 +34,7 @@ public interface RoomParticipantRepository extends JpaRepository<RoomParticipant
      * @param roomId 매칭방 ID
      * @return 참가자 목록
      */
-    List<RoomParticipant> findAllByMatchingRoom_RoomId(Integer roomId);
+    List<RoomParticipant> findAllByMatchingRoom_RoomId(Long roomId);
 
     long countDistinctUserByMatchingRoomAndStatus(MatchingRoom room, RoomParticipant.ParticipantStatus status);
 

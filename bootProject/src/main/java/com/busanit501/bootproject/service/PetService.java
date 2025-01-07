@@ -21,14 +21,14 @@ public class PetService {
     /**
      * 사용자 ID로 모든 펫 조회
      */
-    public List<Pet> findAllByUserId(Integer userId) {
+    public List<Pet> findAllByUserId(Long userId) {
         return petRepository.findAllByUser_UserId(userId);
     }
 
     /**
      * 펫 ID로 펫 조회
      */
-    public Optional<Pet> findById(Integer petId) {
+    public Optional<Pet> findById(Long petId) {
         return petRepository.findById(petId);
     }
 }

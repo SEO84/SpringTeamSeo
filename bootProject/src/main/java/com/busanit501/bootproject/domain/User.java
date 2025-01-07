@@ -16,7 +16,7 @@ public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Integer userId;
+    private Long userId;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -28,7 +28,7 @@ public class User extends BaseEntity {
     private String name;
 
     @Column(nullable = false)
-    private Integer age;
+    private Long age;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

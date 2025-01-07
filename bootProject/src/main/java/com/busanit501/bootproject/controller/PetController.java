@@ -84,15 +84,15 @@ public class PetController {
      * 반려동물 응답용 DTO
      */
     static class PetResponse {
-        private Integer id;
+        private Long id;
         private String name;
 
-        public PetResponse(Integer id, String name) {
+        public PetResponse(Long id, String name) {
             this.id = id;
             this.name = name;
         }
 
-        public Integer getId() {
+        public Long getId() {
             return id;
         }
 

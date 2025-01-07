@@ -40,13 +40,14 @@ public class MatchingService {
         return roomRepository.findAll();
     }
 
-    public MatchingRoom getRoomById(Integer roomId) {
+    public MatchingRoom getRoomById(Long roomId) {
         return roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("매칭방을 찾을 수 없습니다. ID: " + roomId));
     }
 
     @Transactional
     public void createRoom(MatchingRoomDTO dto, User hostUser) {
+        // 새 매칭방 생성
         MatchingRoom room = new MatchingRoom();
         room.setHost(hostUser);
         room.setTitle(dto.getTitle());
@@ -55,10 +56,11 @@ public class MatchingService {
         room.setMeetingDate(dto.getMeetingDate());
         room.setMeetingTime(dto.getMeetingTime());
         room.setMaxParticipants(dto.getMaxParticipants());
-        room.setUser(hostUser);
+        room.setUser(hostUser); // hostUser를 사용자 필드에도 넣고 있음
 
         MatchingRoom savedRoom = roomRepository.save(room);
 
+        // 호스트 펫들 등록
         List<Pet> pets = petRepository.findAllById(dto.getPetIds());
         for (Pet pet : pets) {
             RoomParticipant participant = new RoomParticipant();
@@ -71,28 +73,65 @@ public class MatchingService {
     }
 
     @Transactional
-    public void applyRoom(Integer roomId, Integer userId, List<Integer> petIds) {
+    public void updateRoom(Long roomId, MatchingRoomDTO dto, User hostUser) {
         MatchingRoom room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("매칭방을 찾을 수 없습니다."));
 
+        if (!room.getHost().getUserId().equals(hostUser.getUserId())) {
+            throw new RuntimeException("방장만 수정할 수 있습니다.");
+        }
+
+        // 기본 정보 갱신
+        room.setTitle(dto.getTitle());
+        room.setDescription(dto.getDescription());
+        room.setPlace(dto.getPlace());
+        room.setMeetingDate(dto.getMeetingDate());
+        room.setMeetingTime(dto.getMeetingTime());
+        room.setMaxParticipants(dto.getMaxParticipants());
+
+        // 호스트의 펫 참가 정보 다시 세팅(기존 호스트 펫 정보는 모두 삭제 후 새로 등록)
+        List<RoomParticipant> existingParticipants = participantRepository.findAllByMatchingRoomAndUser(room, hostUser);
+        participantRepository.deleteAll(existingParticipants);
+
+        List<Pet> pets = petRepository.findAllById(dto.getPetIds());
+        for (Pet pet : pets) {
+            RoomParticipant participant = new RoomParticipant();
+            participant.setMatchingRoom(room);
+            participant.setUser(hostUser);
+            participant.setPet(pet);
+            participant.setStatus(RoomParticipant.ParticipantStatus.Accepted);
+            participantRepository.save(participant);
+        }
+        // 수정된 room은 트랜잭션 종료 시점에 자동으로 DB 반영
+    }
+
+    // 참가 신청
+    @Transactional
+    public void applyRoom(Long roomId, Long userId, List<Long> petIds) {
+        MatchingRoom room = getRoomById(roomId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
 
+        // 이미 신청했는지 확인
         List<RoomParticipant> existingParticipants = participantRepository.findAllByMatchingRoomAndUser(room, user);
         if (!existingParticipants.isEmpty()) {
             throw new RuntimeException("이미 참가 신청을 했습니다.");
         }
 
+        // 펫 유효성 체크
         List<Pet> pets = petRepository.findAllById(petIds);
         if (pets.size() != petIds.size()) {
             throw new ResourceNotFoundException("일부 펫을 찾을 수 없습니다.");
         }
 
-        long acceptedParticipants = participantRepository.countDistinctUserByMatchingRoomAndStatus(room, RoomParticipant.ParticipantStatus.Accepted);
+        // 최대인원 확인
+        long acceptedParticipants =
+                participantRepository.countDistinctUserByMatchingRoomAndStatus(room, RoomParticipant.ParticipantStatus.Accepted);
         if (acceptedParticipants + 1 > room.getMaxParticipants()) {
             throw new RuntimeException("참가 인원이 초과되었습니다.");
         }
 
+        // Pending 상태로 참가 신청
         for (Pet pet : pets) {
             RoomParticipant participant = new RoomParticipant();
             participant.setMatchingRoom(room);
@@ -103,11 +142,10 @@ public class MatchingService {
         }
     }
 
+    // 참가자 승인
     @Transactional
-    public void acceptParticipant(Integer roomId, Integer userId) {
-        MatchingRoom room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new ResourceNotFoundException("매칭방을 찾을 수 없습니다."));
-
+    public void acceptParticipant(Long roomId, Long userId) {
+        MatchingRoom room = getRoomById(roomId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
 
@@ -116,7 +154,8 @@ public class MatchingService {
             throw new ResourceNotFoundException("참가 신청을 찾을 수 없습니다.");
         }
 
-        long acceptedParticipants = participantRepository.countDistinctUserByMatchingRoomAndStatus(room, RoomParticipant.ParticipantStatus.Accepted);
+        long acceptedParticipants =
+                participantRepository.countDistinctUserByMatchingRoomAndStatus(room, RoomParticipant.ParticipantStatus.Accepted);
         if (acceptedParticipants + 1 > room.getMaxParticipants()) {
             throw new RuntimeException("최대 참가 인원을 초과하여 승인할 수 없습니다.");
         }
@@ -130,11 +169,10 @@ public class MatchingService {
         }
     }
 
+    // 참가자 거절
     @Transactional
-    public void rejectParticipant(Integer roomId, Integer userId) {
-        MatchingRoom room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new ResourceNotFoundException("매칭방을 찾을 수 없습니다."));
-
+    public void rejectParticipant(Long roomId, Long userId) {
+        MatchingRoom room = getRoomById(roomId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
 
@@ -152,52 +190,25 @@ public class MatchingService {
         }
     }
 
-    public List<RoomParticipant> getParticipantsByRoomId(Integer roomId) {
+    public List<RoomParticipant> getParticipantsByRoomId(Long roomId) {
         MatchingRoom room = getRoomById(roomId);
         return participantRepository.findAllByMatchingRoom_RoomId(roomId);
     }
 
-    public List<RoomParticipant> filterParticipants(List<RoomParticipant> participants, RoomParticipant.ParticipantStatus status) {
+    public List<RoomParticipant> filterParticipants(List<RoomParticipant> participants,
+                                                    RoomParticipant.ParticipantStatus status) {
         return participants.stream()
                 .filter(p -> p.getStatus() == status)
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public void updateRoom(Integer roomId, MatchingRoomDTO dto, User hostUser) {
-        MatchingRoom room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new ResourceNotFoundException("매칭방을 찾을 수 없습니다."));
-
-        if (!room.getHost().getUserId().equals(hostUser.getUserId())) {
-            throw new RuntimeException("방장만 수정할 수 있습니다.");
-        }
-
-        room.setTitle(dto.getTitle());
-        room.setDescription(dto.getDescription());
-        room.setPlace(dto.getPlace());
-        room.setMeetingDate(dto.getMeetingDate());
-        room.setMeetingTime(dto.getMeetingTime());
-        room.setMaxParticipants(dto.getMaxParticipants());
-
-        roomRepository.save(room);
-
-        // 기존 참가자 정보 업데이트
-        List<RoomParticipant> existingParticipants = participantRepository.findAllByMatchingRoomAndUser(room, hostUser);
-        participantRepository.deleteAll(existingParticipants);
-
-        List<Pet> pets = petRepository.findAllById(dto.getPetIds());
-        for (Pet pet : pets) {
-            RoomParticipant participant = new RoomParticipant();
-            participant.setMatchingRoom(room);
-            participant.setUser(hostUser);
-            participant.setPet(pet);
-            participant.setStatus(RoomParticipant.ParticipantStatus.Accepted);
-            participantRepository.save(participant);
-        }
-    }
-
+    /**
+     * MatchingRoom -> MatchingRoomDTO 변환
+     */
     public MatchingRoomDTO convertToDto(MatchingRoom room) {
         MatchingRoomDTO dto = new MatchingRoomDTO();
+        // roomId는 Controller에서 추가 세팅하거나 여기서도 가능
+        // dto.setRoomId(room.getRoomId());
         dto.setTitle(room.getTitle());
         dto.setDescription(room.getDescription());
         dto.setPlace(room.getPlace());
@@ -205,6 +216,7 @@ public class MatchingService {
         dto.setMeetingTime(room.getMeetingTime());
         dto.setMaxParticipants(room.getMaxParticipants());
         dto.setPetIds(room.getParticipants().stream()
+                // 호스트가 등록한 펫만 추려내기
                 .filter(p -> p.getUser().getUserId().equals(room.getHost().getUserId()))
                 .map(p -> p.getPet().getPetId())
                 .collect(Collectors.toList()));

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
      * 이메일로 사용자 조회
@@ -58,7 +58,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
      * @param age 최소 나이
      * @return User 목록
      */
-    List<User> findByAgeGreaterThanEqual(Integer age);
+    List<User> findByAgeGreaterThanEqual(Long age);
 
     /**
      * 특정 나이 이하의 사용자 조회
@@ -66,5 +66,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
      * @param age 최대 나이
      * @return User 목록
      */
-    List<User> findByAgeLessThanEqual(Integer age);
+    List<User> findByAgeLessThanEqual(Long age);
 }

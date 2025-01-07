@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PetRepository extends JpaRepository<Pet, Integer> {
+public interface PetRepository extends JpaRepository<Pet, Long> {
 
     /**
      * 사용자와 기본 펫을 조회
@@ -26,5 +26,5 @@ public interface PetRepository extends JpaRepository<Pet, Integer> {
      * @param userId 사용자 ID
      * @return 펫 목록
      */
-    List<Pet> findAllByUser_UserId(Integer userId);
+    List<Pet> findAllByUser_UserId(Long userId);
 }

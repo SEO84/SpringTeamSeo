@@ -12,6 +12,7 @@
 html {scroll-behavior: smooth;}
 
 body {
+    min-height: 100vh;
     font-family: "Noto Sans KR", Arial, Helvetica, sans-serif;
     -webkit-font-smoothing: antialiased; /* 폰트 렌더링 최적화 */
     -moz-osx-font-smoothing: grayscale;
@@ -39,29 +40,117 @@ input, textarea {border: none; outline: none; font: inherit;}
 address {font-style: normal;}
 
 
+
+
+
+/* 기본 요소 세팅 */
+input {width: 100%; background: #F5F5F5; border: none; font-family: "Noto Sans KR", Arial, Helvetica, sans-serif; font-size: 15px;}
+input::placeholder {color: #C4C5C8;}
+input.input {flex: 1; height: 50px; padding: 0 20px; border-radius: 8px; }
+
+.checkbox input[type="checkbox"] {display: none;}
+.checkbox input[type="checkbox"] + label {display: flex; align-items: center; width: fit-content; font-size: 13px; cursor: pointer;}
+.checkbox input[type="checkbox"] + label span {display: block; width: 20px; height: 20px; background: #F0f0f0; border-radius: 5px; margin: 0 5px 0 0;}
+.checkbox input[type="checkbox"]:checked + label span {background: url("/images/checked.svg") no-repeat center center #000;}
+
+.form-group {margin: 0 0 30px;}
+.form-group .input-group {display: flex; gap: 10px; margin: 0 0 10px;}
+.form-group .input-group .input {flex: 1;}
+.form-group .input-group .input > label {display: block; font-size: 15px; font-weight: 600; color: #A5A5A5; margin: 0 0 10px;}
+.form-group .input-group .input > div {display: flex; gap: 10px;}
+.form-group .input-group .input > div > input {width: auto; flex: 1;}
+.form-group .input-group .input > div button {width: 100px; color: #fff; background: #000;}
+
+
+
+.form-check {display: flex; width: 100px; background: #F5F5F5; border-radius: 8px;}
+.form-check input[type='radio'] {display: none;}
+.form-check input[type='radio']+label {flex: 1; display: flex; align-items: center; justify-content: center; margin: 0; border-radius: 8px; font-size: 15px; color: #C4C5C8;}
+.form-check input[type='radio']:checked+label {color: #fff; background: #000;}
+
+
+.btn {display: flex; align-items: center; justify-content: center; width: 100%; height: 50px; font-size: 15px; font-weight: 600; border-radius: 8px; font-family: "Noto Sans KR", Arial, Helvetica, sans-serif;}
+.btn.btn-dark {background: #000; color: #fff;}
+.btn.btn-gray {background: #D9D9D9; color: #000;}
+.btn-box {display: flex; align-items: center; justify-content: center; gap: 10px;}
+.btn-box .btn {flex: 1;}
+
+
+
+
+
+
 /* ==================== 테스트 */
 /* ==================== 공통 */
-#wrap {display: flex; align-items: flex-start;}
+#wrap {display: flex; align-items: flex-start; min-height: 100vh;}
 
+.count {position: absolute; top: 0; left: 50%; color: #FFF; line-height: 1; font-family: "Inter", serif; font-size: 12px; font-weight: 600; padding: 4px 6px; border-radius: 20px; background: #F61414;}
+
+.img {background: url("/images/img_empty.svg") no-repeat center center #f5f5f5; display: flex; align-items: center; justify-content: center;}
+
+
+
+.vertical {position: relative; width: fit-content;}
+.vertical .verticalBtn {display: block;}
+.vertical .verticalOption {display: none; position: absolute; bottom: 0; right: 0; padding: 10px 0; transform: translate(0, calc(100% + 10px)); background: #fff; box-shadow: 1px 0 20px rgba(0 0 0 / 0.1); border-radius: 10px;}
+.vertical .verticalOption ul li a {position: relative; display: flex; align-items: center; width: 120px; height: 35px; padding: 0 20px; font-size: 13px;}
+.vertical .verticalOption ul li a:hover {background: #F5F5F5; transition: background-color 0.2s;}
+.vertical.active .verticalOption {display: block;}
 
 
 /* ==================== side */
 #side {position: sticky; top: 0; width: 350px; height: 100vh; padding: 50px 20px; border-right: 1px solid #A5A5A5; }
-#side .logo {font-family: "Inter", serif; font-size: 22px; font-weight: 900; letter-spacing: -0.05em; padding: 0 15px;}
-
+#side .logo {display:flex; align-items: center; justify-content: center; padding: 20px 15px;}
+#side .logo a {}
 
 #side .sideMenu {margin: 30px 0;}
 #side .sideMenu li {}
 #side .sideMenu li a {display: flex; align-items: center; height: 60px; padding: 15px; border-radius: 10px; transition: background-color 0.2s;}
 #side .sideMenu li a:hover {background: #F5F5F5;}
 #side .sideMenu li a .icon {position: relative; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; margin: 0 20px 0 0;}
-#side .sideMenu li a .icon .count {position: absolute; top: 0; left: 50%; color: #FFF; line-height: 1; font-family: "Inter", serif; font-size: 12px; font-weight: 900; padding: 4px 6px; border-radius: 20px; letter-spacing: -0.05em; background: #F61414;}
 #side .sideMenu li a .txt {font-size: 18px; font-weight: 700;}
 #side .sideMenu li a .icon .profile-img {width: 100%; height: 100%; border-radius: 50%; background-color: #D9D9D9;}
 
+@media (max-width: 1440px) {
+    #side {width: 300px;}
+}
+
+/* ==================== mainContent */
+.mainContent {flex: 1; min-height: 100vh;}
+
+/* ==================== #header */
+#header {display: flex; align-items: center; padding: 30px 80px 10px;}
+#header .logo {margin: 0 20px 0 0;}
+#header .search {position: relative; display: flex; align-items: center; height: 46px; padding: 0 10px 0 46px; background: #F5F5F5; border-radius: 10px; overflow: hidden}
+#header .search .searchBtn {position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; width: 46px; height: 46px;}
+#header .search .searchBtn img {width: 18px;}
+#header .search input {padding-left: 0;}
+
+#header .headMenu {display: flex; align-items: center; margin: 0 0 0 10px;}
+#header .headMenu li {margin: 0 15px;}
+#header .headMenu li a {font-size: 15px; font-weight: 500;}
+
+#header .headMember {display: flex; align-items: center; margin: 0 0 0 auto; gap: 15px;}
+#header .headMember li a {position: relative; display: flex; align-items: center; height: 30px; font-size: 13px;}
+#header .headMember li.headSignup a {color: #A5A5A5; margin: 0 10px 0 0;}
+#header .headMember li.headLogin a {color: #FFF; background: #000; padding: 0 20px; border-radius: 30px;}
+#header .headMember li.headProfile {position: relative;}
+#header .headMember li.headProfile button {display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; letter-spacing: -0.05em; margin: 0 0 0 20px;}
+#header .headMember li.headProfile button span.icon {margin: 0 0 0 5px;}
+#header .headMember li.headProfile .profileOption {display: none; position: absolute; bottom: 0; right: 0; padding: 10px 0; transform: translate(0, calc(100% + 10px)); background: #fff; box-shadow: 1px 0 20px rgba(0 0 0 / 0.1); border-radius: 10px;}
+#header .headMember li.headProfile .profileOption li a {width: 120px; height: 35px; padding: 0 20px;}
+#header .headMember li.headProfile .profileOption li a:hover {background: #F5F5F5; transition: background-color 0.2s;}
+#header .headMember li.headProfile.active .profileOption {display: block;}
+
+@media (max-width: 1440px) {
+    #header {padding: 30px 50px 10px;}
+}
 
 
 
+.content {word-break: break-all; padding: 50px 0;}
+.contentContainer {width: 100%; margin: 0 auto; padding: 0 80px;}
 
-
-
+@media (max-width: 1440px) {
+    #contentContainer {padding: 0 50px;}
+}

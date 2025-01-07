@@ -92,9 +92,10 @@
         </tbody>
     </table>
 </div>
-<!--<div th:if="${isHost}" class="text-center mt-3">-->
-<!--    <a th:href="@{/matching/edit/{id}(id=${room.roomId})}" class="btn btn-primary">수정하기</a>-->
-<!--</div>-->
+<!-- (중략) 호스트일 경우 -->
+<div th:if="${isHost}" class="text-center mt-3">
+    <a th:href="@{/matching/edit/{id}(id=${room.roomId})}" class="btn btn-primary">수정하기</a>
+</div>
 
 <div th:if="${!isHost}">
     <h2>참가자 목록</h2>

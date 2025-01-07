@@ -16,7 +16,7 @@ public class Pet extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pet_id")
-    private Integer petId;
+    private Long petId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -29,7 +29,7 @@ public class Pet extends BaseEntity {
     private String type;
 
     @Column(nullable = false)
-    private Integer age;
+    private Long age;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

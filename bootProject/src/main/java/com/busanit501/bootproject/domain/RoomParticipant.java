@@ -15,7 +15,7 @@ public class RoomParticipant extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "participant_id")
-    private Integer participantId;
+    private Long participantId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "matching_room_id", nullable = false)

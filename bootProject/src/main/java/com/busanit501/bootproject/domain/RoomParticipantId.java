@@ -16,17 +16,17 @@ public class RoomParticipantId implements Serializable {
     /**
      * 매칭방 ID
      */
-    private Integer roomId;
+    private Long roomId;
 
     /**
      * 사용자 ID
      */
-    private Integer userId;
+    private Long userId;
 
     /**
      * 반려동물 ID
      */
-    private Integer petId;
+    private Long petId;
 
     /**
      * 기본 생성자
@@ -39,7 +39,7 @@ public class RoomParticipantId implements Serializable {
      * @param userId 사용자 ID
      * @param petId 반려동물 ID
      */
-    public RoomParticipantId(Integer roomId, Integer userId, Integer petId) {
+    public RoomParticipantId(Long roomId, Long userId, Long petId) {
         this.roomId = roomId;
         this.userId = userId;
         this.petId = petId;

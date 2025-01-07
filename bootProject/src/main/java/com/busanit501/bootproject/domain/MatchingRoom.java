@@ -20,7 +20,7 @@ public class MatchingRoom extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "room_id")
-    private Integer roomId;
+    private Long roomId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "host_id", nullable = false)
@@ -42,7 +42,7 @@ public class MatchingRoom extends BaseEntity {
     private LocalTime meetingTime;
 
     @Column(nullable = false)
-    private Integer maxParticipants;
+    private Long maxParticipants;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -52,8 +52,8 @@ public class MatchingRoom extends BaseEntity {
     @OneToMany(mappedBy = "matchingRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoomParticipant> participants = new ArrayList<>();
 
-    public Integer getCurrentParticipants() {
-        return (int) participants.stream()
+    public Long getCurrentParticipants() {
+        return participants.stream()
                 .filter(p -> p.getStatus() == RoomParticipant.ParticipantStatus.Accepted)
                 .map(RoomParticipant::getUser)
                 .distinct()
@@ -62,7 +62,7 @@ public class MatchingRoom extends BaseEntity {
 
     public void initialize(User host, User user, Pet hostPet, String title, String place,
                            LocalDate meetingDate, LocalTime meetingTime,
-                           Integer maxParticipants, String description) {
+                           Long maxParticipants, String description) {
         this.host = host;
         this.user = user;
         this.title = title;

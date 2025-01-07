@@ -66,7 +66,7 @@ public class UserService {
      * @return User 객체 (없을 경우 null)
      */
     @Transactional(readOnly = true)
-    public User findById(Integer userId) {
+    public User findById(Long userId) {
         return userRepository.findById(userId).orElse(null);
     }
 
