@@ -1,16 +1,100 @@
-/* src/main/resources/static/css/create.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
 
-/* 기본 컨테이너 레이아웃 */
-.container {
-    max-width: 600px;
+.create-form-container {
+    max-width: 400px; /* 폼의 넓이를 기존의 반으로 줄임 */
     margin: 0 auto;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* 이미지 미리보기 */
-#imagePreview {
-    margin-top: 10px;
+/* 이미지 업로드 */
+.image-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* 이미지 미리보기 스타일 */
+/* 이미지 미리보기 스타일 */
+.image-preview {
+    width: 100%;
+    height: 200px;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #ced4da;
+    border-radius: 5px;
+}
+
+.image-preview img {
     max-width: 100%;
-    height: auto;
+    max-height: 100%;
+    object-fit: cover;
+    display: none; /* 초기에는 숨김 */
 }
 
-/* 기타 스타일은 필요에 따라 추가 */
+/* 파일 입력 영역 스타일 */
+.file-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#fileName {
+    flex-grow: 1;
+}
+
+
+.file-input-container .form-control {
+    flex: 1; /* 파일 이름 바의 넓이 조정 */
+}
+
+.file-input-container .btn {
+    flex-shrink: 0;
+}
+
+/* 반려동물 선택 */
+.pets-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pet-container {
+    display: flex;
+    align-items: center;
+    background-color: #f1f3f5;
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pet-container input {
+    margin-right: 10px;
+}
+
+/* 하단 버튼 */
+.form-buttons {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.form-buttons .btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-buttons .btn-secondary {
+    margin-right: 15px;
+}

@@ -36,18 +36,24 @@
     <!-- 제목 / 설명 -->
     <h2 class="room-title" th:text="${room.title}">매칭방 제목</h2>
     <p class="room-description" th:text="${room.description}">매칭방 설명</p>
-
-    <!-- 참여자 현황 -->
+    <!-- 날짜 / 시간 -->
+    <div class="date-row">
+        <span class="label">날짜</span>
+        <span th:text="${#temporals.format(room.meetingDate, 'yyyy-MM-dd')}">2025-01-10</span>
+    </div>
+    <div class="time-row">
+        <span class="label">시간</span>
+        <span th:text="${#temporals.format(room.meetingTime, 'HH:mm')}">19:00</span>
+    </div>
     <!-- 참여자 현황 -->
     <div class="participant-section">
         <div class="participants-wrapper">
-            <!-- 유저별 데이터 렌더링 -->
             <div th:each="entry : ${acceptedMap.entrySet()}" class="participant-container">
-                <!-- 유저 정보 -->
+                <!-- 사용자 정보 -->
                 <div class="participant-user">
                     <span th:text="${entry.key.name}">UserName</span>
                 </div>
-                <!-- 펫 정보 (한 줄로 표시) -->
+                <!-- 펫 정보 -->
                 <div class="participant-pets">
                     <div th:each="pet : ${entry.value}" class="pet-container">
                         <img th:if="${pet.profilePicture != null}" th:src="${pet.profilePicture}" class="pet-img" />
@@ -60,16 +66,6 @@
     </div>
 
 
-
-    <!-- 날짜 / 시간 -->
-    <div class="date-row">
-        <span class="label">날짜</span>
-        <span th:text="${#temporals.format(room.meetingDate, 'yyyy-MM-dd')}">2025-01-10</span>
-    </div>
-    <div class="time-row">
-        <span class="label">시간</span>
-        <span th:text="${#temporals.format(room.meetingTime, 'HH:mm')}">19:00</span>
-    </div>
 
     <!-- 하단 버튼 -->
     <div class="bottom-buttons">
