@@ -12,6 +12,7 @@ import com.busanit501.bootproject.service.PetService;
 import com.busanit501.bootproject.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,8 +23,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
+@Log4j2
 @Controller
 @RequestMapping("/matching")
 public class MatchingController {
@@ -133,10 +136,29 @@ public class MatchingController {
     /**
      * 매칭방 상세 페이지
      */
+//    @GetMapping("/detail/{id}")
+//    public String getMatchingRoomDetail(@PathVariable("id") Long roomId,
+//                                        Model model,
+//                                        HttpSession session,
+//                                        RedirectAttributes redirectAttributes) {
+//        User loginUser = getManagedLoginUser(session);
+//        if (loginUser == null) {
+//            redirectAttributes.addFlashAttribute("errorMessage", "로그인이 필요합니다.");
+//            return "redirect:/user/login";
+//        }
+//
+//        try {
+//            MatchingRoom room = matchingService.getRoomById(roomId);
+//            populateModelForDetail(model, room, loginUser);
+//            return "matching/detail";
+//        } catch (ResourceNotFoundException e) {
+//            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+//            return "redirect:/matching/list";
+//        }
+//    }
     @GetMapping("/detail/{id}")
     public String getMatchingRoomDetail(@PathVariable("id") Long roomId,
-                                        Model model,
-                                        HttpSession session,
+                                        Model model, HttpSession session,
                                         RedirectAttributes redirectAttributes) {
         User loginUser = getManagedLoginUser(session);
         if (loginUser == null) {
@@ -145,14 +167,52 @@ public class MatchingController {
         }
 
         try {
+            // 매칭방 + 참가자 조회
             MatchingRoom room = matchingService.getRoomById(roomId);
-            populateModelForDetail(model, room, loginUser);
-            return "matching/detail";
+            List<RoomParticipant> participants = matchingService.getParticipantsByRoomId(roomId);
+
+            // 대기(Pending)/승인(Accepted) 구분
+            List<RoomParticipant> pending = matchingService.filterParticipants(
+                    participants, RoomParticipant.ParticipantStatus.Pending);
+            List<RoomParticipant> accepted = matchingService.filterParticipants(
+                    participants, RoomParticipant.ParticipantStatus.Accepted);
+
+            // 호스트 여부
+            boolean isHost = room.getHost().getUserId().equals(loginUser.getUserId());
+
+            // pendingMap
+            Map<User, List<Pet>> pendingMap = matchingService.getPendingUserPets(room);
+            model.addAttribute("pendingMap", pendingMap);
+            // acceptedMap 만들기
+            // (Map<User, List<Pet>>) user->pets
+            Map<User, List<Pet>> acceptedMap = matchingService.getAcceptedUserPets(room);
+            if (acceptedMap == null) {
+                acceptedMap = new HashMap<>(); // ★ null 방지
+            }
+
+            // 모델에 담기
+            model.addAttribute("room", room);
+            model.addAttribute("pendingParticipants", pending);
+            model.addAttribute("acceptedParticipants", accepted);
+            model.addAttribute("acceptedMap", acceptedMap);
+            model.addAttribute("isHost", isHost);
+            log.info("Accepted map size: {}", acceptedMap.size());
+            // 호스트가 아닌 경우만 userPets 준비 (유저가 신청 모달에서 선택)
+            if (!isHost) {
+                List<Pet> userPets = petService.findAllByUserId(loginUser.getUserId());
+                model.addAttribute("userPets", userPets);
+            }
+
+            return "matching/detail"; // detail.html
         } catch (ResourceNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/matching/list";
         }
     }
+
+
+
+
 
     /**
      * 매칭방 수정 폼 페이지
@@ -239,24 +299,25 @@ public class MatchingController {
      */
     @PostMapping("/apply/{roomId}")
     public String applyRoom(@PathVariable("roomId") Long roomId,
-                            @RequestParam(value = "additionalPetIds", required = false) List<Long> additionalPetIds,
+                            @RequestParam(value = "additionalPetIds", required = false) List<Long> petIds,
                             HttpSession session,
-                            RedirectAttributes redirectAttributes) {
+                            RedirectAttributes ra) {
         User loginUser = getManagedLoginUser(session);
         if (loginUser == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "로그인이 필요합니다.");
+            ra.addFlashAttribute("errorMessage", "로그인이 필요합니다.");
             return "redirect:/user/login";
         }
 
         try {
-            matchingService.applyRoom(roomId, loginUser.getUserId(), additionalPetIds);
-            redirectAttributes.addFlashAttribute("successMessage", "참가 신청이 성공적으로 완료되었습니다.");
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            matchingService.applyRoom(roomId, loginUser.getUserId(), petIds);
+            ra.addFlashAttribute("successMessage", "참가 신청 완료!");
+            return "redirect:/matching/list"; // 신청 후 list 화면
+        } catch (Exception e) {
+            ra.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/matching/detail/" + roomId;
         }
-
-        return "redirect:/matching/detail/" + roomId;
     }
+
 
     /**
      * 참가자 승인

@@ -60,17 +60,4 @@ public class MatchingRoom extends BaseEntity {
                 .distinct()
                 .count();
     }
-
-    public void initialize(User host, User user, Pet hostPet, String title, String place,
-                           LocalDate meetingDate, LocalTime meetingTime,
-                           Long maxParticipants, String description) {
-        this.host = host;
-        this.user = user;
-        this.title = title;
-        this.place = place;
-        this.meetingDate = meetingDate;
-        this.meetingTime = meetingTime;
-        this.maxParticipants = maxParticipants;
-        this.description = description;
-    }
 }

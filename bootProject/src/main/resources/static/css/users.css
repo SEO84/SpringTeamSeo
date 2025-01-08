@@ -1,0 +1,66 @@
+@charset "UTF-8";
+/* member */
+.member-form {width: 100%; margin: auto; padding: 50px 15px;}
+.member-form h2 {font-size: 20px; font-weight: 700; margin-bottom: 20px; text-align: center;}
+
+/* login */
+.login-member-form {max-width: 380px;}
+#login-form {padding: 0 0 30px; margin: 0 0 20px; border-bottom: 1px solid #D9D9D9;}
+#login-form .input-group {margin: 0 0 10px;}
+#login-form .btn-box {margin: 20px 0 0; text-align: center;}
+#login-form .joinBtn {display: block; margin: 15px auto 0; font-size: 14px; cursor: pointer;}
+
+
+.social-login {}
+.social-login .btn {justify-content: flex-start;}
+.social-login .btn:not(:last-child) {margin: 0 0 10px;}
+.social-login .btn.kakao {background: #FBE750; color: #000;}
+.social-login .btn.naver {background: #5BC467; color: #fff;}
+.social-login .btn.google {background: #F4F4F4; color: #000;}
+.social-login .btn .icon {display: flex; align-items: center; justify-content: center; width: 50px;}
+.text-danger {font-size: 13px; color: #F61414; margin: 0 0 10px;}
+
+
+/* signup */
+.signup-member-form {max-width: 680px;}
+#signup-form {}
+
+
+/* profile */
+.profile {display: flex; gap: 50px; max-width: 680px; margin: 0 auto;}
+.profile .profile-image {width: 120px; height: 120px; border-radius: 50%; overflow: hidden;}
+.profile .profile-info {flex: 1;}
+.profile .profile-info .info-top {display: flex; align-items: center;}
+.profile .profile-info .info-top .manner {font-size: 13px; font-weight: 600; color: #A5A5A5; margin: 0 auto 0 0;}
+.profile .profile-info .info-top .manner span {color: #000; margin: 0 0 0 5px; font-weight: 800;}
+.profile .profile-info .info-top .contact {height: 35px; padding: 0 15px; background: #F5F5F5; border-radius: 8px; font-size: 14px; font-weight: 600; margin: 0 10px 0 0;}
+.profile .profile-info .info-top .vertical .verticalBtn {height: 35px; width: 35px;}
+
+.profile .profile-info .profileUser {font-size: 18px; font-weight: 800; margin: 0 0 5px;}
+.profile .profile-info .profileText {font-size: 14px; letter-spacing: -0.02em; line-height: 1.3;}
+
+.profile .profile-info .myPetProfile {display: flex; align-items: center; gap: 10px; margin: 20px 0 0;}
+.profile .profile-info .myPetProfile li a .thumb {position: relative; width: 50px; height: 50px; border-radius: 50%;}
+.profile .profile-info .myPetProfile li a .img {background-size: 50%;}
+.profile .profile-info .myPetProfile li a .thumb .verified {position: absolute; bottom: 0; right: 0;}
+.profile .profile-info .myPetProfile li a .name {font-size: 13px; text-align: center; margin: 2px 0 0;}
+
+
+.profileContent {margin: 50px 0 0;}
+.profileTap {display: flex;}
+.profileTap li {flex: 1; border-bottom: 1px solid #D9D9D9;}
+.profileTap li button {position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 50px;}
+.profileTap li button .count {position: relative; background: none; color: #000; left: 0;}
+.profileTap li button a {position: absolute; display: block; right: 0;}
+.profileTap li.on {border-bottom: 1px solid #000;}
+.profileTap li.on button {font-width: 600;}
+
+#gallery {}
+#gallery ul {display: flex; flex-wrap: wrap; margin: 5px -5px;}
+#gallery ul li {width: calc(100% / 4); padding: 5px;}
+#gallery ul li a .thumb {width: 100%; height: 230px;}
+
+
+
+
+

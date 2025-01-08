@@ -38,4 +38,5 @@ public interface RoomParticipantRepository extends JpaRepository<RoomParticipant
 
     long countDistinctUserByMatchingRoomAndStatus(MatchingRoom room, RoomParticipant.ParticipantStatus status);
 
+    List<RoomParticipant> findAllByMatchingRoomAndStatus(MatchingRoom room, RoomParticipant.ParticipantStatus participantStatus);
 }
