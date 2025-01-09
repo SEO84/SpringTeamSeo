@@ -10,35 +10,40 @@
 </head>
 <body>
 <div class="container my-5 create-form-container">
+    <!-- 매칭방 생성 폼 -->
     <form th:action="@{/matching/create}" th:object="${matchingRoomDTO}" method="post" enctype="multipart/form-data">
         <!-- 이미지 업로드 섹션 -->
         <div class="form-group">
             <label for="imageFile">이미지</label>
 
-            <!-- 파일 선택 -->
+            <!-- 파일 선택 섹션 -->
             <div class="file-input-container mb-3">
+                <!-- 파일명 표시하는 입력 필드 -->
                 <input type="text" id="fileName" class="form-control" readonly placeholder="파일을 선택하세요">
+                <!-- 파일 찾기 버튼 -->
                 <button type="button" class="btn btn-dark mt-2" onclick="document.getElementById('imageFile').click()">찾기</button>
+                <!-- 숨겨진 파일 선택 필드 -->
                 <input type="file" name="imageFile" id="imageFile" class="form-control-file" onchange="previewImage(event)" style="display: none;">
             </div>
 
-            <!-- 미리보기 섹션 -->
+            <!-- 이미지 미리보기 섹션 -->
             <div class="image-preview" id="imagePreviewContainer">
                 <img id="imagePreview" src="@{/img/thumbnail-default.svg}" alt="이미지 미리보기">
             </div>
         </div>
 
-
-        <!-- 모임 장소 -->
+        <!-- 모임 장소 입력 -->
         <div class="form-group">
             <label for="place">모임장소</label>
             <div class="input-group">
+                <!-- 주소 입력 필드 -->
                 <input type="text" th:field="*{place}" id="place" class="form-control" placeholder="주소 입력">
+                <!-- 주소 찾기 버튼 -->
                 <button type="button" class="btn btn-dark">주소찾기</button>
             </div>
         </div>
 
-        <!-- 모임 날짜 -->
+        <!-- 모임 날짜 입력 -->
         <div class="form-group">
             <label for="meetingDate">모임날짜</label>
             <input type="date" th:field="*{meetingDate}" id="meetingDate" class="form-control">
@@ -46,10 +51,12 @@
 
         <!-- 모임 시간 & 모임 인원 -->
         <div class="form-row">
+            <!-- 모임 시간 입력 -->
             <div class="form-group col-md-6">
                 <label for="meetingTime">모임시간</label>
                 <input type="time" th:field="*{meetingTime}" id="meetingTime" class="form-control">
             </div>
+            <!-- 모임 최대 참가 인원 입력 -->
             <div class="form-group col-md-6">
                 <label for="maxParticipants">모임인원</label>
                 <input type="number" th:field="*{maxParticipants}" id="maxParticipants" class="form-control" min="1" max="100">
@@ -60,30 +67,35 @@
         <div class="form-group">
             <label>반려동물</label>
             <div class="pets-selection">
+                <!-- 사용자 소유 반려동물 반복 출력 -->
                 <div th:each="pet : ${userPets}" class="pet-container">
+                    <!-- 반려동물 선택 체크박스 -->
                     <input type="checkbox" th:id="'pet-' + ${pet.petId}" th:value="${pet.petId}" th:field="*{petIds}">
                     <label th:for="'pet-' + ${pet.petId}">
+                        <!-- 반려동물 이름 -->
                         <span th:text="${pet.name}">펫 이름</span>
                     </label>
                 </div>
             </div>
         </div>
 
-        <!-- 제목 -->
+        <!-- 매칭방 제목 입력 -->
         <div class="form-group">
             <label for="title">제목</label>
             <input type="text" th:field="*{title}" id="title" class="form-control">
         </div>
 
-        <!-- 내용 -->
+        <!-- 매칭방 내용 및 규칙 입력 -->
         <div class="form-group">
             <label for="description">내용 및 규칙</label>
             <textarea th:field="*{description}" id="description" class="form-control" rows="5" placeholder="내용 및 규칙을 적어주세요"></textarea>
         </div>
 
-        <!-- 하단 버튼 -->
+        <!-- 하단 버튼 섹션 -->
         <div class="form-buttons">
+            <!-- 취소 버튼 -->
             <a th:href="@{/matching/list}" class="btn btn-secondary">취소</a>
+            <!-- 완료 버튼 -->
             <button type="submit" class="btn btn-dark">완료</button>
         </div>
     </form>
@@ -91,17 +103,24 @@
 
 <script th:src="@{/js/create.js}"></script>
 <script>
-    // 이미지 미리보기 및 파일명 업데이트
+    /**
+     * 이미지 미리보기 및 파일명 업데이트
+     * - 사용자가 파일을 선택하면 미리보기와 파일명을 업데이트.
+     */
     function previewImage(event) {
         const imagePreview = document.getElementById('imagePreview');
-        imagePreview.src = URL.createObjectURL(event.target.files[0]);
-        imagePreview.style.display = 'block';
+        imagePreview.src = URL.createObjectURL(event.target.files[0]); // 선택된 파일의 URL을 설정
+        imagePreview.style.display = 'block'; // 이미지 표시
     }
 
+    /**
+     * 파일명 업데이트
+     * - 파일 선택 시 입력 필드에 파일명을 표시.
+     */
     function updateFileName(event) {
         const fileNameInput = document.getElementById('fileName');
         const file = event.target.files[0];
-        fileNameInput.value = file ? file.name : '';
+        fileNameInput.value = file ? file.name : ''; // 파일명이 없으면 빈 문자열
     }
 </script>
 </body>

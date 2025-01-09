@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>매칭방 상세</title>
+    <!-- 매칭방 상세 페이지 CSS -->
     <link rel="stylesheet" th:href="@{/css/detail.css}">
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- 카카오 지도 API -->
     <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_MAP_API_KEY&libraries=services"></script>
 </head>
 <body>
@@ -12,22 +15,29 @@
 
     <!-- 상단 영역 -->
     <div class="detail-topbar">
+        <!-- 뒤로가기 버튼 -->
         <a th:href="@{/matching/list}" class="back-btn">&#60; 뒤로</a>
         <div th:if="${isHost}" class="host-action-buttons">
+            <!-- 호스트 전용 참여 관리 버튼 -->
             <button class="btn btn-light btn-participant-manage" onclick="openParticipantManageModal()">참여관리</button>
+            <!-- 매칭방 수정 버튼 -->
             <a th:href="@{/matching/edit/{id}(id=${room.roomId})}" class="btn btn-light btn-edit">수정</a>
         </div>
     </div>
 
     <!-- 메인 이미지 -->
     <div class="main-image-section">
+        <!-- 업로드된 이미지가 있으면 해당 이미지 표시 -->
         <img th:if="${room.imageUrl != null}" th:src="${room.imageUrl}" alt="메인 이미지" class="main-image">
+        <!-- 업로드된 이미지가 없으면 기본 이미지 표시 -->
         <img th:if="${room.imageUrl == null}" th:src="@{/img/thumbnail-default.svg}" alt="기본이미지" class="main-image">
     </div>
 
     <!-- 장소 / 참여 현황 -->
     <div class="info-row">
+        <!-- 모임 장소 -->
         <div class="place-text" th:text="${room.place}">서울 | 안구정동</div>
+        <!-- 참여자 수 -->
         <div class="participant-count">
             <span th:text="${room.currentParticipants}">2</span>/<span th:text="${room.maxParticipants}">4</span>명
         </div>
@@ -36,6 +46,7 @@
     <!-- 제목 / 설명 -->
     <h2 class="room-title" th:text="${room.title}">매칭방 제목</h2>
     <p class="room-description" th:text="${room.description}">매칭방 설명</p>
+
     <!-- 날짜 / 시간 -->
     <div class="date-row">
         <span class="label">날짜</span>
@@ -45,6 +56,7 @@
         <span class="label">시간</span>
         <span th:text="${#temporals.format(room.meetingTime, 'HH:mm')}">19:00</span>
     </div>
+
     <!-- 참여자 현황 -->
     <div class="participant-section">
         <div class="participants-wrapper">
@@ -65,13 +77,13 @@
         </div>
     </div>
 
-
-
     <!-- 하단 버튼 -->
     <div class="bottom-buttons">
+        <!-- 호스트 전용 확인 버튼 -->
         <div th:if="${isHost}">
             <button type="button" class="btn btn-dark" onclick="location.href='/matching/list'">확인</button>
         </div>
+        <!-- 일반 사용자용 취소/신청 버튼 -->
         <div th:if="${!isHost}">
             <button type="button" class="btn btn-secondary" onclick="history.back()">취소</button>
             <button type="button" class="btn btn-primary" onclick="openPetSelectModal()">신청</button>
@@ -79,8 +91,7 @@
     </div>
 </div>
 
-
-<!-- 호스트가 '참여관리' 버튼 클릭시 뜨는 모달 -->
+<!-- 참여 관리 모달 -->
 <div id="participantManageModal" class="modal" style="display:none;">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -89,44 +100,30 @@
                 <button type="button" class="close" onclick="closeParticipantManageModal()">&times;</button>
             </div>
             <div class="modal-body">
-
-                <!-- pendingMap: Map<User, List<Pet>> -->
-                <!-- 만약 비어있지 않다면 -->
+                <!-- 대기 중인 참가자 -->
                 <div th:if="${pendingMap != null and !#maps.isEmpty(pendingMap)}">
                     <div th:each="entry : ${pendingMap.entrySet()}">
-
-                        <!-- 사용자 이름 (한 번) -->
                         <p>
                             <strong th:text="${entry.key.name}">UserName</strong>
-                            <!-- 승인/거절 버튼: userId 단위 -->
-                        <form th:action="@{/matching/accept/{roomId}/{userId}(roomId=${room.roomId}, userId=${entry.key.userId})}"
-                              method="post" style="display:inline;">
+                        <form th:action="@{/matching/accept/{roomId}/{userId}(roomId=${room.roomId}, userId=${entry.key.userId})}" method="post" style="display:inline;">
                             <button class="btn btn-success btn-sm">승인</button>
                         </form>
-                        <form th:action="@{/matching/reject/{roomId}/{userId}(roomId=${room.roomId}, userId=${entry.key.userId})}"
-                              method="post" style="display:inline;">
+                        <form th:action="@{/matching/reject/{roomId}/{userId}(roomId=${room.roomId}, userId=${entry.key.userId})}" method="post" style="display:inline;">
                             <button class="btn btn-danger btn-sm">거절</button>
                         </form>
                         </p>
-
-                        <!-- 사용자 펫 여러마리 표시 -->
                         <div class="user-pet-list">
-              <span th:each="pet : ${entry.value}">
-                  <!-- pet 이름 / 프로필 등 -->
-                  <span th:text="${pet.name}">펫이름</span>
-                  <!-- 나열 or 줄바꿈, css로 조절 -->
-              </span>
+                            <span th:each="pet : ${entry.value}">
+                                <span th:text="${pet.name}">펫이름</span>
+                            </span>
                         </div>
-
                         <hr/>
                     </div>
                 </div>
-
                 <!-- 대기자가 없을 때 -->
                 <div th:if="${#maps.isEmpty(pendingMap)}">
                     대기중인 참가자가 없습니다.
                 </div>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeParticipantManageModal()">닫기</button>
@@ -135,13 +132,10 @@
     </div>
 </div>
 
-
-
-<!-- [모달2] 일반유저 신청: 체크박스로 펫 선택 -->
+<!-- 일반 사용자 신청 모달 -->
 <div id="petSelectModal" class="modal" style="display:none;">
     <div class="modal-dialog">
         <div class="modal-content">
-            <!-- 신청 후 컨트롤러에서 apply -> redirect:/matching/list -->
             <form th:action="@{/matching/apply/{roomId}(roomId=${room.roomId})}" method="post">
                 <div class="modal-header">
                     <h5 class="modal-title">신청할 반려동물 선택</h5>
@@ -150,10 +144,8 @@
                 <div class="modal-body">
                     <p>체크하면 선택, 해제하면 취소. 여러 마리 가능</p>
                     <div th:each="pet : ${userPets}">
-                        <!-- 체크박스 name="additionalPetIds" value="${pet.petId}" -->
                         <label>
-                            <input type="checkbox" th:name="additionalPetIds"
-                                   th:value="${pet.petId}"/>
+                            <input type="checkbox" th:name="additionalPetIds" th:value="${pet.petId}"/>
                             <span th:text="${pet.name}">반려동물이름</span>
                         </label>
                         <br/>
