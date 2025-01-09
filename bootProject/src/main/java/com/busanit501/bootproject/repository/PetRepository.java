@@ -27,4 +27,7 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
      * @return 펫 목록
      */
     List<Pet> findAllByUser_UserId(Long userId);
+
+    // List<Pet> findAllByUserId(Long userId); // 제거됨
+
 }

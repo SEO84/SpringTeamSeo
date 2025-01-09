@@ -23,9 +23,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 매칭 컨트롤러 클래스
@@ -39,7 +39,7 @@ public class MatchingController {
     private final MatchingService matchingService; // 매칭방 관련 비즈니스 로직 처리
     private final PetService petService; // 반려동물 관련 비즈니스 로직 처리
     private final UserRepository userRepository; // 사용자 데이터 접근
-    private final UserService userService; // 사용자 관련 비즈니스 로직 처리
+
 
     /**
      * 생성자 주입 방식으로 서비스와 레포지토리를 연결
@@ -47,12 +47,12 @@ public class MatchingController {
     @Autowired
     public MatchingController(MatchingService matchingService,
                               PetService petService,
-                              UserRepository userRepository,
-                              UserService userService) {
+                              UserRepository userRepository
+                             ) {
         this.matchingService = matchingService;
         this.petService = petService;
         this.userRepository = userRepository;
-        this.userService = userService;
+
     }
 
     /**
@@ -61,15 +61,19 @@ public class MatchingController {
      */
     @GetMapping("/list")
     public String list(Model model, HttpSession session) {
-        User loginUser = getManagedLoginUser(session); // 로그인된 사용자 가져오기
-        if (loginUser == null) {
-            return "redirect:/user/login"; // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
-        }
-        // 매칭방 리스트를 조회 후 모델에 추가
-        List<MatchingRoom> rooms = matchingService.getAllRooms();
+       //  로그인된 사용자 가져오기 (가정)
+         User loginUser = getManagedLoginUser(session);
+         if (loginUser == null) {
+             return "redirect:/user/login";
+         }
+
+        // 모든 매칭 방 가져오기
+        List<MatchingRoomDTO> rooms = matchingService.getAllRooms();
+
         model.addAttribute("rooms", rooms);
-        return "matching/list"; // 매칭방 목록 페이지 반환
+        return "matching/list";
     }
+
 
     /**
      * 매칭방 생성 폼 페이지 반환

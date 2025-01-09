@@ -1,37 +1,56 @@
-/* src/main/resources/static/css/list.css */
-
-/* 상단 키워드 스타일 */
+/* 키워드 태그 스타일 */
 .keyword-tag {
     display: inline-block;
-    padding: 5px 10px;
+    padding: 8px 15px;
     margin-right: 8px;
-    background-color: #f1f1f1;
+    background-color: #f8f9fa;
     border-radius: 20px;
     cursor: pointer;
 }
 .keyword-tag:hover {
-    background-color: #e4e4e4;
+    background-color: #e9ecef;
 }
 
-/* 검색박스, 등 추가 커스텀 */
+/* 검색창 스타일 */
 .search-form {
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     border-radius: 30px;
     overflow: hidden;
 }
 .search-input {
+    flex-grow: 1;
     border: none;
-    outline: none;
-    box-shadow: none !important;
+    padding: 10px 15px;
 }
 .search-btn {
+    background-color: #007bff;
+    color: #fff;
     border: none;
-    background: none;
-    border-left: 1px solid #ccc;
+    padding: 10px 15px;
 }
 
-/* 카드 그리드 (추가 옵션) */
+/* 카드 그리드 스타일 */
 .card-grid {
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-start;
+    overflow-y: auto;
+    max-height: calc(100vh - 150px); /* 화면 높이에 맞게 조정 */
+}
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+.card img {
+    height: 180px;
+    object-fit: cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+.card-body {
+    padding: 15px;
+}
+.card-title {
+    font-size: 18px;
+    font-weight: bold;
 }

@@ -5,6 +5,8 @@ import com.busanit501.bootproject.domain.Pet;
 import com.busanit501.bootproject.domain.RoomParticipant;
 import com.busanit501.bootproject.domain.User;
 import com.busanit501.bootproject.dto.MatchingRoomDTO;
+import com.busanit501.bootproject.dto.PetDTO;
+import com.busanit501.bootproject.dto.UserDTO;
 import com.busanit501.bootproject.exception.ResourceNotFoundException;
 import com.busanit501.bootproject.repository.MatchingRoomRepository;
 import com.busanit501.bootproject.repository.PetRepository;
@@ -44,11 +46,15 @@ public class MatchingService {
 
     /**
      * 모든 매칭방 리스트 조회
-     * @return 매칭방 리스트
+     * @return 매칭방 DTO 리스트
      */
-    public List<MatchingRoom> getAllRooms() {
-        return roomRepository.findAll();
+    public List<MatchingRoomDTO> getAllRooms() {
+        List<MatchingRoom> rooms = roomRepository.findAll();
+        return rooms.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
+
 
     /**
      * 특정 ID에 해당하는 매칭방 조회
@@ -283,6 +289,7 @@ public class MatchingService {
      */
     public MatchingRoomDTO convertToDto(MatchingRoom room) {
         MatchingRoomDTO dto = new MatchingRoomDTO();
+        dto.setRoomId(room.getRoomId());
         dto.setTitle(room.getTitle());
         dto.setDescription(room.getDescription());
         dto.setPlace(room.getPlace());
@@ -291,11 +298,55 @@ public class MatchingService {
         dto.setMaxParticipants(room.getMaxParticipants());
         dto.setImageUrl(room.getImageUrl());
 
+        // 호스트 펫 ID 리스트 추가
         List<Long> petIds = room.getParticipants().stream()
                 .filter(p -> p.getUser().getUserId().equals(room.getHost().getUserId()))
                 .map(p -> p.getPet().getPetId())
                 .collect(Collectors.toList());
         dto.setPetIds(petIds);
+
+        // 참여자 펫 정보 리스트 추가
+        List<PetDTO> pets = room.getParticipants().stream()
+                .map(participant -> {
+                    PetDTO petDTO = new PetDTO();
+                    petDTO.setPetId(participant.getPet().getPetId());
+                    petDTO.setName(participant.getPet().getName());
+                    petDTO.setType(participant.getPet().getType());
+                    petDTO.setAge(participant.getPet().getAge());
+                    petDTO.setGender(participant.getPet().getGender());
+                    petDTO.setWeight(participant.getPet().getWeight());
+                    petDTO.setPersonality(participant.getPet().getPersonality());
+                    return petDTO;
+                })
+                .collect(Collectors.toList());
+        dto.setPets(pets);
+
+        // petType 필드 설정 (모든 펫 타입을 쉼표로 구분)
+        String petTypes = pets.stream()
+                .map(PetDTO::getType)
+                .distinct()
+                .collect(Collectors.joining(", "));
+        dto.setPetType(petTypes);
+
+        // 현재 참가 인원 수 계산 및 설정
+        long currentParticipants = room.getParticipants().stream()
+                .filter(p -> p.getStatus() == RoomParticipant.ParticipantStatus.Accepted)
+                .count();
+        dto.setCurrentParticipants(currentParticipants);
+        // 호스트 정보 설정
+        dto.setHost(convertUserToDto(room.getHost()));
+
         return dto;
     }
+
+    private UserDTO convertUserToDto(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setUserId(user.getUserId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        // 필요한 경우 추가 필드 설정
+        return dto;
+    }
+
+
 }
