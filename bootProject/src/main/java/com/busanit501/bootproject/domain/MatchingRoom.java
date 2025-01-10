@@ -1,15 +1,17 @@
 package com.busanit501.bootproject.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder
+@AllArgsConstructor
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,9 +24,9 @@ public class MatchingRoom extends BaseEntity {
     @Column(name = "room_id")
     private Long roomId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "host_id", nullable = false)
-    private User host;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "host_id", nullable = false)
+//    private User host;
 
     @Column(nullable = false)
     private String title;
@@ -51,6 +53,8 @@ public class MatchingRoom extends BaseEntity {
     private User user;
 
     @OneToMany(mappedBy = "matchingRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @OnDelete(action = OnDeleteAction.CASCADE) // 외래 키 삭제 시 CASCADE 동작
     private List<RoomParticipant> participants = new ArrayList<>();
 
     public Long getCurrentParticipants() {
@@ -61,16 +65,4 @@ public class MatchingRoom extends BaseEntity {
                 .count();
     }
 
-    public void initialize(User host, User user, Pet hostPet, String title, String place,
-                           LocalDate meetingDate, LocalTime meetingTime,
-                           Long maxParticipants, String description) {
-        this.host = host;
-        this.user = user;
-        this.title = title;
-        this.place = place;
-        this.meetingDate = meetingDate;
-        this.meetingTime = meetingTime;
-        this.maxParticipants = maxParticipants;
-        this.description = description;
-    }
 }

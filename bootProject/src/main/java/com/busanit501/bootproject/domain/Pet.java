@@ -43,4 +43,6 @@ public class Pet extends BaseEntity {
 
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault = false;
+
+    private String imageUrl;
 }

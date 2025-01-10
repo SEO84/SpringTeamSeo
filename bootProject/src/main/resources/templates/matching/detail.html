@@ -1,4 +1,3 @@
-<!-- src/main/resources/templates/matching/detail.html -->
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -6,7 +5,6 @@
     <title>매칭방 상세</title>
     <link rel="stylesheet" th:href="@{/css/detail.css}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_MAP_API_KEY&libraries=services"></script>
     <style>
         body { padding: 20px; }
         h1, h2, h3 { text-align: center; margin-bottom: 20px; }
@@ -61,7 +59,7 @@
         <th>날짜</th>
         <th>시간</th>
         <th>참가현황</th>
-        <th>방장</th>
+        <th>작성자</th> <!-- 방장 → 작성자 -->
     </tr>
     </thead>
     <tbody>
@@ -75,12 +73,12 @@
             <span th:text="${room.currentParticipants}">0</span> /
             <span th:text="${room.maxParticipants}">0</span>
         </td>
-        <td th:text="${room.host?.name}">방장</td>
+        <td th:text="${room.user?.name}">작성자</td> <!-- room.host → room.user -->
     </tr>
     </tbody>
 </table>
 
-<!-- 호스트일 때: 참가 신청 목록(대기/승인) 표시, 수정하기 버튼 등 -->
+<!-- 작성자일 때: 참가 신청 목록(대기/승인) 표시, 수정하기 버튼 등 -->
 <div th:if="${isHost}">
     <h2>참가 신청 목록</h2>
     <h3>승인 대기 중</h3>
@@ -148,9 +146,19 @@
     <div class="text-center mt-3">
         <a th:href="@{/matching/edit/{id}(id=${room.roomId})}" class="btn btn-primary">수정하기</a>
     </div>
+    <!-- 삭제하기 버튼 -->
+    <div class="text-center mt-3">
+        <form th:action="@{/matching/delete/{id}(id=${room.roomId})}" method="post" onsubmit="return confirm('정말로 삭제하시겠습니까?');">
+            <button type="submit" class="btn btn-danger">삭제하기</button>
+        </form>
+    </div>
+    <!-- 확정하기 버튼 -->
+    <form th:action="@{/matching/confirm/{id}(id=${room.roomId})}" method="post" style="display:inline;" onsubmit="return confirm('스케줄을 확정하시겠습니까?');">
+        <button type="submit" class="btn btn-success">확정하기</button>
+    </form>
 </div>
 
-<!-- 호스트가 아니면, 참가자 목록 + 참가 신청 폼 -->
+<!-- 작성자가 아닐 때 -->
 <div th:if="${!isHost}">
     <h2>참가자 목록</h2>
     <table class="table table-bordered">

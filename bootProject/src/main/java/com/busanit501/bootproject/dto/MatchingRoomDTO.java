@@ -39,10 +39,18 @@ public class MatchingRoomDTO {
     @NotNull(message = "최대 인원은 필수 입력 항목입니다.")
     @Min(value = 1, message = "최대 인원은 최소 1명 이상이어야 합니다.")
     private Long maxParticipants;
-
+    private Long currentParticipants;
     @NotEmpty(message = "최소 한 마리의 반려동물을 선택해야 합니다.")
     private List<Long> petIds;
 
     // 추가 참가 펫 ID 목록(선택적)
     private List<Long> additionalPetIds;
+
+    // 추가된 필드: 참여자의 펫 목록
+    private List<PetDTO> pets;
+
+    // 펫 타입을 문자열로 추가 (여러 타입을 하나의 문자열로 결합)
+    private String petType;
+
+
 }

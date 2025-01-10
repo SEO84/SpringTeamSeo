@@ -38,4 +38,8 @@ public interface RoomParticipantRepository extends JpaRepository<RoomParticipant
 
     long countDistinctUserByMatchingRoomAndStatus(MatchingRoom room, RoomParticipant.ParticipantStatus status);
 
+    List<RoomParticipant> findAllByMatchingRoom(MatchingRoom room);
+    void deleteAllByMatchingRoom(MatchingRoom matchingRoom);
+    // MatchingRoom ID와 ParticipantStatus를 기반으로 참가자 조회
+    List<RoomParticipant> findAllByMatchingRoom_RoomIdAndStatus(Long roomId, RoomParticipant.ParticipantStatus status);
 }

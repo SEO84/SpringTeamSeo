@@ -1,4 +1,3 @@
-<!-- src/main/resources/templates/matching/list.html -->
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -52,7 +51,7 @@
         <th>장소</th>
         <th>날짜</th>
         <th>시간</th>
-        <th>호스트</th>
+        <th>작성자</th> <!-- Host → User로 변경 -->
         <th>참가 인원</th>
         <th>액션</th>
     </tr>
@@ -74,7 +73,7 @@
         <td th:text="${room.place}">Place</td>
         <td th:text="${#temporals.format(room.meetingDate, 'yyyy-MM-dd')}">Date</td>
         <td th:text="${#temporals.format(room.meetingTime, 'HH:mm')}">Time</td>
-        <td th:text="${room.host.name}">Host</td>
+        <td th:text="${room.user.name}">User</td> <!-- host → user -->
         <td th:text="${room.currentParticipants} + '/' + ${room.maxParticipants}">Participants</td>
         <td>
             <a th:href="@{/matching/detail/{id}(id=${room.roomId})}" class="btn btn-primary btn-sm">상세보기</a>
