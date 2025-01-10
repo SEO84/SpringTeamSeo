@@ -3,165 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <title>매칭방 상세</title>
-    <!-- 매칭방 상세 페이지 CSS -->
     <link rel="stylesheet" th:href="@{/css/detail.css}">
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- 카카오 지도 API -->
-    <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_MAP_API_KEY&libraries=services"></script>
+    <style>
+        body { padding: 20px; }
+        h1, h2, h3 { text-align: center; margin-bottom: 20px; }
+        .table { margin-bottom: 20px; }
+        .map-placeholder {
+            width: 100%;
+            height: 400px;
+            margin: 20px auto;
+        }
+        .alert {
+            text-align: center;
+        }
+        /* 이미지 섹션 */
+        .room-image {
+            display: block;
+            margin: 0 auto 20px auto;
+            max-width: 400px;
+        }
+    </style>
 </head>
 <body>
-<div class="detail-container">
+<h1>매칭방 상세</h1>
+<p style="text-align:center;">
+    <a th:href="@{/matching/list}" class="btn btn-secondary">[ 매칭방 목록으로 돌아가기 ]</a>
+</p>
 
-    <!-- 상단 영역 -->
-    <div class="detail-topbar">
-        <!-- 뒤로가기 버튼 -->
-        <a th:href="@{/matching/list}" class="back-btn">&#60; 뒤로</a>
-        <div th:if="${isHost}" class="host-action-buttons">
-            <!-- 호스트 전용 참여 관리 버튼 -->
-            <button class="btn btn-light btn-participant-manage" onclick="openParticipantManageModal()">참여관리</button>
-            <!-- 매칭방 수정 버튼 -->
-            <a th:href="@{/matching/edit/{id}(id=${room.roomId})}" class="btn btn-light btn-edit">수정</a>
-        </div>
-    </div>
-
-    <!-- 메인 이미지 -->
-    <div class="main-image-section">
-        <!-- 업로드된 이미지가 있으면 해당 이미지 표시 -->
-        <img th:if="${room.imageUrl != null}" th:src="${room.imageUrl}" alt="메인 이미지" class="main-image">
-        <!-- 업로드된 이미지가 없으면 기본 이미지 표시 -->
-        <img th:if="${room.imageUrl == null}" th:src="@{/img/thumbnail-default.svg}" alt="기본이미지" class="main-image">
-    </div>
-
-    <!-- 장소 / 참여 현황 -->
-    <div class="info-row">
-        <!-- 모임 장소 -->
-        <div class="place-text" th:text="${room.place}">서울 | 안구정동</div>
-        <!-- 참여자 수 -->
-        <div class="participant-count">
-            <span th:text="${room.currentParticipants}">2</span>/<span th:text="${room.maxParticipants}">4</span>명
-        </div>
-    </div>
-
-    <!-- 제목 / 설명 -->
-    <h2 class="room-title" th:text="${room.title}">매칭방 제목</h2>
-    <p class="room-description" th:text="${room.description}">매칭방 설명</p>
-
-    <!-- 날짜 / 시간 -->
-    <div class="date-row">
-        <span class="label">날짜</span>
-        <span th:text="${#temporals.format(room.meetingDate, 'yyyy-MM-dd')}">2025-01-10</span>
-    </div>
-    <div class="time-row">
-        <span class="label">시간</span>
-        <span th:text="${#temporals.format(room.meetingTime, 'HH:mm')}">19:00</span>
-    </div>
-
-    <!-- 참여자 현황 -->
-    <div class="participant-section">
-        <div class="participants-wrapper">
-            <div th:each="entry : ${acceptedMap.entrySet()}" class="participant-container">
-                <!-- 사용자 정보 -->
-                <div class="participant-user">
-                    <span th:text="${entry.key.name}">UserName</span>
-                </div>
-                <!-- 펫 정보 -->
-                <div class="participant-pets">
-                    <div th:each="pet : ${entry.value}" class="pet-container">
-                        <img th:if="${pet.profilePicture != null}" th:src="${pet.profilePicture}" class="pet-img" />
-                        <img th:if="${pet.profilePicture == null}" th:src="@{/img/pet-default.svg}" class="pet-img" />
-                        <span class="pet-name" th:text="${pet.name}">PetName</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 하단 버튼 -->
-    <div class="bottom-buttons">
-        <!-- 호스트 전용 확인 버튼 -->
-        <div th:if="${isHost}">
-            <button type="button" class="btn btn-dark" onclick="location.href='/matching/list'">확인</button>
-        </div>
-        <!-- 일반 사용자용 취소/신청 버튼 -->
-        <div th:if="${!isHost}">
-            <button type="button" class="btn btn-secondary" onclick="history.back()">취소</button>
-            <button type="button" class="btn btn-primary" onclick="openPetSelectModal()">신청</button>
-        </div>
-    </div>
+<div th:if="${successMessage}" class="alert alert-success">
+    <p th:text="${successMessage}"></p>
+</div>
+<div th:if="${errorMessage}" class="alert alert-danger">
+    <p th:text="${errorMessage}"></p>
 </div>
 
-<!-- 참여 관리 모달 -->
-<div id="participantManageModal" class="modal" style="display:none;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">참여자 승인/거절</h5>
-                <button type="button" class="close" onclick="closeParticipantManageModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <!-- 대기 중인 참가자 -->
-                <div th:if="${pendingMap != null and !#maps.isEmpty(pendingMap)}">
-                    <div th:each="entry : ${pendingMap.entrySet()}">
-                        <p>
-                            <strong th:text="${entry.key.name}">UserName</strong>
-                        <form th:action="@{/matching/accept/{roomId}/{userId}(roomId=${room.roomId}, userId=${entry.key.userId})}" method="post" style="display:inline;">
-                            <button class="btn btn-success btn-sm">승인</button>
-                        </form>
-                        <form th:action="@{/matching/reject/{roomId}/{userId}(roomId=${room.roomId}, userId=${entry.key.userId})}" method="post" style="display:inline;">
-                            <button class="btn btn-danger btn-sm">거절</button>
-                        </form>
-                        </p>
-                        <div class="user-pet-list">
-                            <span th:each="pet : ${entry.value}">
-                                <span th:text="${pet.name}">펫이름</span>
-                            </span>
-                        </div>
-                        <hr/>
-                    </div>
-                </div>
-                <!-- 대기자가 없을 때 -->
-                <div th:if="${#maps.isEmpty(pendingMap)}">
-                    대기중인 참가자가 없습니다.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeParticipantManageModal()">닫기</button>
-            </div>
-        </div>
-    </div>
+<!-- 이미지 섹션 -->
+<div style="text-align:center; margin-bottom:20px;">
+    <img th:if="${room.imageUrl != null}"
+         th:src="${room.imageUrl}"
+         alt="이미지"
+         class="room-image"/>
+    <img th:if="${room.imageUrl == null}"
+         th:src="@{/img/thumbnail-default.svg}"
+         alt="기본이미지"
+         class="room-image"/>
 </div>
 
-<!-- 일반 사용자 신청 모달 -->
-<div id="petSelectModal" class="modal" style="display:none;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form th:action="@{/matching/apply/{roomId}(roomId=${room.roomId})}" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title">신청할 반려동물 선택</h5>
-                    <button type="button" class="close" onclick="closePetSelectModal()">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <p>체크하면 선택, 해제하면 취소. 여러 마리 가능</p>
-                    <div th:each="pet : ${userPets}">
-                        <label>
-                            <input type="checkbox" th:name="additionalPetIds" th:value="${pet.petId}"/>
-                            <span th:text="${pet.name}">반려동물이름</span>
-                        </label>
-                        <br/>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closePetSelectModal()">취소</button>
-                    <button type="submit" class="btn btn-primary">신청</button>
-                </div>
-            </form>
-        </div>
+<table class="table table-bordered">
+    <thead class="thead-dark">
+    <tr>
+        <th>방번호</th>
+        <th>제목</th>
+        <th>장소</th>
+        <th>날짜</th>
+        <th>시간</th>
+        <th>참가현황</th>
+        <th>작성자</th> <!-- 방장 → 작성자 -->
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td th:text="${room.roomId}">1</td>
+        <td th:text="${room.title}">제목</td>
+        <td th:text="${room.place}">장소</td>
+        <td th:text="${#temporals.format(room.meetingDate, 'yyyy-MM-dd')}">날짜</td>
+        <td th:text="${#temporals.format(room.meetingTime, 'HH:mm')}">시간</td>
+        <td>
+            <span th:text="${room.currentParticipants}">0</span> /
+            <span th:text="${room.maxParticipants}">0</span>
+        </td>
+        <td th:text="${room.user?.name}">작성자</td> <!-- room.host → room.user -->
+    </tr>
+    </tbody>
+</table>
+
+<!-- 작성자일 때: 참가 신청 목록(대기/승인) 표시, 수정하기 버튼 등 -->
+<div th:if="${isHost}">
+    <h2>참가 신청 목록</h2>
+    <h3>승인 대기 중</h3>
+    <table class="table table-bordered">
+        <thead class="thead-light">
+        <tr>
+            <th>사용자 이름</th>
+            <th>펫 이름</th>
+            <th>신청 시간</th>
+            <th>상태</th>
+            <th>조치</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="participant : ${pendingParticipants}">
+            <td th:text="${participant.user.name}">사용자 이름</td>
+            <td th:text="${participant.pet.name}">펫 이름</td>
+            <td th:text="${participant.created_at != null ? #temporals.format(participant.created_at, 'yyyy-MM-dd HH:mm') : '날짜 없음'}">
+                신청 시간
+            </td>
+            <td th:text="${participant.status}">상태</td>
+            <td>
+                <form th:action="@{/matching/accept/{roomId}/{userId}(roomId=${room.roomId}, userId=${participant.user.userId})}"
+                      method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-success btn-sm">승인</button>
+                </form>
+                <form th:action="@{/matching/reject/{roomId}/{userId}(roomId=${room.roomId}, userId=${participant.user.userId})}"
+                      method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">거절</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(pendingParticipants)}">
+            <td colspan="5">승인 대기 중인 참가자가 없습니다.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h3>승인된 참가자</h3>
+    <table class="table table-bordered">
+        <thead class="thead-light">
+        <tr>
+            <th>사용자 이름</th>
+            <th>펫 이름</th>
+            <th>참가 시간</th>
+            <th>상태</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="participant : ${acceptedParticipants}">
+            <td th:text="${participant.user.name}">사용자 이름</td>
+            <td th:text="${participant.pet.name}">펫 이름</td>
+            <td th:text="${participant.created_at != null ? #temporals.format(participant.created_at, 'yyyy-MM-dd HH:mm') : '날짜 없음'}">
+                참가 시간
+            </td>
+            <td th:text="${participant.status}">상태</td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(acceptedParticipants)}">
+            <td colspan="4">승인된 참가자가 없습니다.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 수정하기 버튼 -->
+    <div class="text-center mt-3">
+        <a th:href="@{/matching/edit/{id}(id=${room.roomId})}" class="btn btn-primary">수정하기</a>
     </div>
+    <!-- 삭제하기 버튼 -->
+    <div class="text-center mt-3">
+        <form th:action="@{/matching/delete/{id}(id=${room.roomId})}" method="post" onsubmit="return confirm('정말로 삭제하시겠습니까?');">
+            <button type="submit" class="btn btn-danger">삭제하기</button>
+        </form>
+    </div>
+    <!-- 확정하기 버튼 -->
+    <form th:action="@{/matching/confirm/{id}(id=${room.roomId})}" method="post" style="display:inline;" onsubmit="return confirm('스케줄을 확정하시겠습니까?');">
+        <button type="submit" class="btn btn-success">확정하기</button>
+    </form>
 </div>
 
-<script th:src="@{/js/detail.js}"></script>
+<!-- 작성자가 아닐 때 -->
+<div th:if="${!isHost}">
+    <h2>참가자 목록</h2>
+    <table class="table table-bordered">
+        <thead class="thead-light">
+        <tr>
+            <th>사용자 이름</th>
+            <th>펫 이름</th>
+            <th>참가 시간</th>
+            <th>상태</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="participant : ${acceptedParticipants}">
+            <td th:text="${participant.user.name}">사용자 이름</td>
+            <td th:text="${participant.pet.name}">펫 이름</td>
+            <td th:text="${participant.created_at != null ? #temporals.format(participant.created_at, 'yyyy-MM-dd HH:mm') : '날짜 없음'}">
+                참가 시간
+            </td>
+            <td th:text="${participant.status}">상태</td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(acceptedParticipants)}">
+            <td colspan="4">참가자가 없습니다.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>참가 신청</h2>
+    <form th:action="@{/matching/apply/{roomId}(roomId=${room.roomId})}" method="post" style="text-align:center;">
+        <label for="additionalPetIds">반려동물 선택:</label>
+        <select name="additionalPetIds" id="additionalPetIds" multiple required class="form-control"
+                style="width: 300px; display: inline-block;">
+            <option th:each="pet : ${userPets}"
+                    th:value="${pet.petId}"
+                    th:text="${pet.name}"></option>
+        </select>
+        <br/><br/>
+        <button type="submit" class="btn btn-primary">참가 신청</button>
+    </form>
+</div>
+
+<div class="map-placeholder"></div>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        function initMap(address) {
+            if (typeof kakao === 'undefined') {
+                console.error('카카오맵 API를 로드할 수 없습니다.');
+                return;
+            }
+            const mapContainer = document.querySelector('.map-placeholder');
+            const geocoder = new kakao.maps.services.Geocoder();
+            geocoder.addressSearch(address, function (result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                    const coords = new kakao.maps.LatLng(result.y, result.x);
+                    const map = new kakao.maps.Map(mapContainer, {
+                        center: coords,
+                        level: 3
+                    });
+                    const marker = new kakao.maps.Marker({
+                        position: coords
+                    });
+                    marker.setMap(map);
+                    const infowindow = new kakao.maps.InfoWindow({
+                        content: `<div style="padding:5px;">${address}</div>`
+                    });
+                    infowindow.open(map, marker);
+                } else {
+                    console.error('주소 검색 실패:', status);
+                    showError(mapContainer, '주소를 찾을 수 없습니다.');
+                }
+            });
+        }
+        function showError(container, message) {
+            container.innerHTML = `<div style="color: red; text-align: center; padding: 20px;">${message}</div>`;
+        }
+        const place = /*[[${room.place}]]*/ '서울특별시';
+        initMap(place);
+    });
+</script>
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

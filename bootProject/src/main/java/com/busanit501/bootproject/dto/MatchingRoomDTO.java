@@ -1,6 +1,5 @@
 package com.busanit501.bootproject.dto;
 
-import com.busanit501.bootproject.domain.User;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -40,9 +39,7 @@ public class MatchingRoomDTO {
     @NotNull(message = "최대 인원은 필수 입력 항목입니다.")
     @Min(value = 1, message = "최대 인원은 최소 1명 이상이어야 합니다.")
     private Long maxParticipants;
-    // 추가된 필드: 현재 참가 인원 수
     private Long currentParticipants;
-
     @NotEmpty(message = "최소 한 마리의 반려동물을 선택해야 합니다.")
     private List<Long> petIds;
 
@@ -55,6 +52,5 @@ public class MatchingRoomDTO {
     // 펫 타입을 문자열로 추가 (여러 타입을 하나의 문자열로 결합)
     private String petType;
 
-    // 추가된 필드: 호스트 정보
-    private UserDTO host;
+
 }

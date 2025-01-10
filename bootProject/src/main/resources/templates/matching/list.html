@@ -2,45 +2,105 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>매칭방 목록</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" th:href="@{/css/list.css}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+            position: relative;
+        }
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .table {
+            margin-bottom: 20px;
+        }
+        .btn-create {
+            display: block;
+            margin: 0 auto;
+        }
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        /* 썸네일 이미지 크기 */
+        .thumb-img {
+            max-width: 80px;
+            max-height: 60px;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <!-- 상단 키워드 -->
-    <div class="keywords mt-3">
-        <span class="keyword-tag" th:each="keyword : ${keywords}" th:text="${keyword}">#Tag</span>
-    </div>
-
-    <!-- 검색창 -->
-    <div class="search-bar mt-3">
-        <form class="search-form d-flex">
-            <input type="text" class="form-control search-input" placeholder="키워드를 입력하세요">
-            <button type="submit" class="btn btn-outline-secondary search-btn">검색</button>
-        </form>
-    </div>
-
-    <!-- 매칭방 리스트 -->
-    <div class="card-grid mt-4">
-        <div class="card mb-4" th:each="room : ${rooms}" style="width: 23%; margin: 1%;">
-            <img th:src="${room.imageUrl}" class="card-img-top" alt="방 이미지">
-            <div class="card-body">
-                <h5 class="card-title" th:text="${room.title}">제목</h5>
-                <p class="card-text">
-                    <strong>모임 장소:</strong> <span th:text="${room.place}">장소</span><br>
-                    <strong>참여 현황:</strong> <span th:text="${room.currentParticipants} + '/' + ${room.maxParticipants}">0/0명</span><br>
-                    <strong>호스트:</strong> <span th:text="${room.host.name}">호스트명</span><br>
-                    <strong>펫 타입:</strong> <span th:text="${room.petType}">펫 종류</span>
-                </p>
-                <a th:href="@{/matching/detail/{id}(id=${room.roomId})}" class="btn btn-primary btn-sm">상세 보기</a>
-            </div>
-        </div>
-    </div>
-
-
+<div class="logout-button">
+    <a href="#" onclick="logout()" class="btn btn-danger btn-sm">로그아웃</a>
 </div>
+
+<h1>매칭방 목록</h1>
+<!-- 성공 메시지 -->
+<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+<table class="table table-bordered">
+    <thead class="thead-dark">
+    <tr>
+        <!-- 추가: 이미지 열 -->
+        <th>이미지</th>
+        <th>제목</th>
+        <th>장소</th>
+        <th>날짜</th>
+        <th>시간</th>
+        <th>작성자</th> <!-- Host → User로 변경 -->
+        <th>참가 인원</th>
+        <th>액션</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="room : ${rooms}">
+        <!-- 이미지 표시 -->
+        <td>
+            <img th:if="${room.imageUrl != null}"
+                 th:src="${room.imageUrl}"
+                 alt="이미지"
+                 class="thumb-img"/>
+            <img th:if="${room.imageUrl == null}"
+                 th:src="@{/img/thumbnail-default.svg}"
+                 alt="기본이미지"
+                 class="thumb-img"/>
+        </td>
+        <td th:text="${room.title}">Title</td>
+        <td th:text="${room.place}">Place</td>
+        <td th:text="${#temporals.format(room.meetingDate, 'yyyy-MM-dd')}">Date</td>
+        <td th:text="${#temporals.format(room.meetingTime, 'HH:mm')}">Time</td>
+        <td th:text="${room.user.name}">User</td> <!-- host → user -->
+        <td th:text="${room.currentParticipants} + '/' + ${room.maxParticipants}">Participants</td>
+        <td>
+            <a th:href="@{/matching/detail/{id}(id=${room.roomId})}" class="btn btn-primary btn-sm">상세보기</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<a th:href="@{/matching/create}" class="btn btn-success btn-create">매칭방 생성</a>
+
+<script>
+    function logout() {
+        // 로그아웃 예시
+        fetch('/logout', { method: 'GET', credentials: 'include' })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    window.location.href = '/user/login';
+                }
+            })
+            .catch(error => {
+                console.error('로그아웃 중 오류 발생:', error);
+                alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
+            });
+    }
+</script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>

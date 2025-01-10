@@ -31,8 +31,4 @@ public class PetService {
     public Optional<Pet> findById(Long petId) {
         return petRepository.findById(petId);
     }
-
-    public List<Pet> getPetsWithType(Long userId) {
-        return petRepository.findAllByUser_UserId(userId); // Pet 엔티티에 type 포함
-    }
 }
