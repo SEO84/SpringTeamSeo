@@ -17,7 +17,7 @@ public class MatchingRoomDTO {
     private Long roomId;
 
     // 이미지 URL (업로드 시 저장 경로)
-    private String imageUrl;
+    private String profilePicture;
 
     @NotBlank(message = "제목은 필수 입력 항목입니다.")
     private String title;
@@ -51,6 +51,7 @@ public class MatchingRoomDTO {
 
     // 펫 타입을 문자열로 추가 (여러 타입을 하나의 문자열로 결합)
     private String petType;
+    private MatchingUserDTO user; // 수정된 부분
 
 
 }

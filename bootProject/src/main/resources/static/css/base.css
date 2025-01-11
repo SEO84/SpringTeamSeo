@@ -48,6 +48,9 @@ input {width: 100%; background: #F5F5F5; border: none; font-family: "Noto Sans K
 input::placeholder {color: #C4C5C8;}
 input.input {flex: 1; height: 50px; padding: 0 20px; border-radius: 8px; }
 
+textarea {width: 100%; height: 250px; padding: 20px; background: #F5F5F5; font-family: "Noto Sans KR", Arial, Helvetica, sans-serif; font-size: 15px; border-radius: 8px; resize: none; }
+
+
 .checkbox input[type="checkbox"] {display: none;}
 .checkbox input[type="checkbox"] + label {display: flex; align-items: center; width: fit-content; font-size: 13px; cursor: pointer;}
 .checkbox input[type="checkbox"] + label span {display: block; width: 20px; height: 20px; background: #F0f0f0; border-radius: 5px; margin: 0 5px 0 0;}
@@ -56,7 +59,7 @@ input.input {flex: 1; height: 50px; padding: 0 20px; border-radius: 8px; }
 .form-group {margin: 0 0 30px;}
 .form-group .input-group {display: flex; gap: 10px; margin: 0 0 10px;}
 .form-group .input-group .input {flex: 1;}
-.form-group .input-group .input > label {display: block; font-size: 15px; font-weight: 600; color: #A5A5A5; margin: 0 0 10px;}
+.form-group .input-group .input > .title {display: block; font-size: 15px; font-weight: 600; color: #A5A5A5; margin: 0 0 10px;}
 .form-group .input-group .input > div {display: flex; gap: 10px;}
 .form-group .input-group .input > div > input {width: auto; flex: 1;}
 .form-group .input-group .input > div button {width: 100px; color: #fff; background: #000;}
@@ -99,7 +102,7 @@ input.input {flex: 1; height: 50px; padding: 0 20px; border-radius: 8px; }
 
 
 /* ==================== side */
-#side {position: sticky; top: 0; width: 350px; height: 100vh; padding: 50px 20px; border-right: 1px solid #A5A5A5; }
+#side {position: sticky; top: 0; flex: none; width: 350px; height: 100vh; padding: 50px 20px; border-right: 1px solid #A5A5A5; }
 #side .logo {display:flex; align-items: center; justify-content: center; padding: 20px 15px;}
 #side .logo a {}
 
@@ -116,7 +119,10 @@ input.input {flex: 1; height: 50px; padding: 0 20px; border-radius: 8px; }
 }
 
 /* ==================== mainContent */
-.mainContent {flex: 1; min-height: 100vh;}
+.mainContent {flex: 1; min-height: 100vh; max-width: calc(100% - 350px); margin: auto;}
+@media (max-width: 1440px) {
+    .mainContent {max-width: calc(100% - 300px);}
+}
 
 /* ==================== #header */
 #header {display: flex; align-items: center; padding: 30px 80px 10px;}
@@ -151,6 +157,29 @@ input.input {flex: 1; height: 50px; padding: 0 20px; border-radius: 8px; }
 .content {word-break: break-all; padding: 50px 0;}
 .contentContainer {width: 100%; margin: 0 auto; padding: 0 80px;}
 
+.contentContainer {}
 @media (max-width: 1440px) {
-    #contentContainer {padding: 0 50px;}
+    .contentContainer {padding: 0 50px;}
 }
+
+
+
+/* register-form */
+.registerContainer {width: 100%; max-width: 680px; padding: 15px; margin: auto;}
+
+
+
+
+/* read-form */
+.readContainer {width: 100%; max-width: 680px; padding: 15px; margin: auto;}
+.readContainer .readHead {display: flex; align-items: center; justify-content: space-between; margin: 0 0 30px;}
+.readContainer .readHead a.back {width: 20px; height: 20px;}
+.readContainer .readHead .update {line-height: 35px;
+    padding: 0 15px;
+    background: #F5F5F5;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 10px 0 0;}
+
+.txtContainer {margin: 50px 0; font-size: 14px; line-height: 1.6;}

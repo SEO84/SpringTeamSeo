@@ -3,7 +3,7 @@ package com.busanit501.bootproject.dto;
 import lombok.Data;
 
 @Data
-public class UserDTO {
+public class MatchingUserDTO {
     private Long userId;
     private String name;
     private String email;

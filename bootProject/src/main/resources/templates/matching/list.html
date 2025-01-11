@@ -3,107 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <title>매칭방 목록</title>
-    <link rel="stylesheet" th:href="@{/css/list.css}">
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            padding: 20px;
-            position: relative;
-        }
-        h1 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .table {
-            margin-bottom: 20px;
-        }
-        .btn-create {
-            display: block;
-            margin: 0 auto;
-        }
-        .logout-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-        /* 썸네일 이미지 크기 */
-        .thumb-img {
-            max-width: 80px;
-            max-height: 60px;
-        }
-    </style>
+    <!-- Google Font (Poppins) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+    <!-- 외부 CSS 파일 링크 -->
+    <link rel="stylesheet" th:href="@{/css/list.css}">
 </head>
 <body>
-<div class="logout-button">
-    <a href="#" onclick="logout()" class="btn btn-danger btn-sm">로그아웃</a>
+<div class="container mt-5">
+    <!-- 인기 키워드 섹션 -->
+    <div class="keywords mb-4">
+        <h2 class="popular-keywords-title">
+            <img src="/img/dog.png" alt="강아지 아이콘" class="dog-icon"> 인기 키워드
+        </h2>
+        <div class="keyword-list">
+            <a th:each="keyword : ${keywords}"
+               th:href="@{/matching/list(query=${keyword})}"
+               class="badge badge-primary mr-2 mb-2 keyword-tag">
+                <span th:text="${keyword}">#Keyword</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 검색바와 메이트 등록 버튼 -->
+    <div class="search-bar-container">
+        <!-- 검색바 -->
+        <form class="form-inline search-form" th:action="@{/matching/list}" method="get">
+            <input type="text" class="form-control search-input" name="query" placeholder="키워드를 입력하세요" th:value="${query}">
+            <button type="submit" class="btn btn-outline-primary search-btn">검색</button>
+        </form>
+
+        <!-- 메이트 등록 버튼 -->
+        <button class="btn btn-success create-button" onclick="location.href='/matching/create'">메이트 등록</button>
+    </div>
+
+    <!-- 검색 결과가 있을 경우: 필터링된 매칭방만 표시 -->
+    <div th:if="${query != null and !#strings.isEmpty(query) and !#lists.isEmpty(filteredRooms)}" class="filtered-rooms mb-5">
+        <h5 th:text='|&quot;${query}&quot; 키워드로 필터링된 매칭방|'>필터링된 매칭방</h5>
+        <div class="card-grid">
+            <a class="card" th:each="room : ${filteredRooms}"
+               th:href="@{/matching/detail/{id}(id=${room.roomId})}">
+                <!-- 프로필 사진 표시 -->
+                <img th:if="${room.profilePicture != null}" th:src="${room.profilePicture}" class="card-img-top room-image" alt="방 이미지">
+                <img th:if="${room.profilePicture == null}" th:src="@{/img/thumbnail-default.svg}" class="card-img-top room-image" alt="기본 이미지">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${room.title}">제목</h5>
+                    <p class="card-text">
+                    <div class="info-row">
+                        <strong class="info-label">모임 장소</strong>
+                        <span class="info-data" th:text="${room.place}" data-toggle="tooltip" data-placement="top" title="${room.place}">장소</span>
+                    </div>
+                    <div class="info-row">
+                        <strong class="info-label">참여 현황</strong>
+                        <span class="info-data" th:text='|${room.currentParticipants}/${room.maxParticipants}|'
+                              data-toggle="tooltip" data-placement="top" title='|${room.currentParticipants}/${room.maxParticipants}|'>0/0명</span>
+                    </div>
+                    <div class="info-row">
+                        <strong class="info-label">호스트</strong>
+                        <span class="info-data" th:text="${room.user.name}" data-toggle="tooltip" data-placement="top" title="${room.user.name}">호스트명</span>
+                    </div>
+                    <div class="info-row">
+                        <strong class="info-label">펫 타입</strong>
+                        <span class="info-data" th:text="${room.petType}" data-toggle="tooltip" data-placement="top" title="${room.petType}">펫 종류</span>
+                    </div>
+                    </p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 검색 결과가 없을 경우: 검색어가 있을 때와 없을 때 다른 처리 -->
+    <div th:if="${query != null and !#strings.isEmpty(query) and #lists.isEmpty(filteredRooms)}" class="no-results mb-5">
+        <p>검색 결과가 없습니다: "<span th:text="${query}">검색어</span>"</p>
+    </div>
+
+    <!-- 검색어가 없을 경우: 모든 매칭방 표시 -->
+    <div th:if="${query == null or #strings.isEmpty(query)}" class="all-rooms">
+        <!-- "모든 매칭방" 텍스트 삭제 -->
+        <div class="card-grid">
+            <a class="card" th:each="room : ${allRooms}"
+               th:href="@{/matching/detail/{id}(id=${room.roomId})}">
+                <!-- 프로필 사진 표시 -->
+                <img th:if="${room.profilePicture != null}" th:src="${room.profilePicture}" class="card-img-top room-image" alt="방 이미지">
+                <img th:if="${room.profilePicture == null}" th:src="@{/img/thumbnail-default.svg}" class="card-img-top room-image" alt="기본 이미지">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${room.title}">제목</h5>
+                    <p class="card-text">
+                    <div class="info-row">
+                        <strong class="info-label">모임 장소</strong>
+                        <span class="info-data" th:text="${room.place}" data-toggle="tooltip" data-placement="top" title="${room.place}">장소</span>
+                    </div>
+                    <div class="info-row">
+                        <strong class="info-label">참여 현황</strong>
+                        <span class="info-data" th:text='|${room.currentParticipants}/${room.maxParticipants}|'
+                              data-toggle="tooltip" data-placement="top" title='|${room.currentParticipants}/${room.maxParticipants}|'>0/0명</span>
+                    </div>
+                    <div class="info-row">
+                        <strong class="info-label">호스트</strong>
+                        <span class="info-data" th:text="${room.user.name}" data-toggle="tooltip" data-placement="top" title="${room.user.name}">호스트명</span>
+                    </div>
+                    <div class="info-row">
+                        <strong class="info-label">펫 타입</strong>
+                        <span class="info-data" th:text="${room.petType}" data-toggle="tooltip" data-placement="top" title="${room.petType}">펫 종류</span>
+                    </div>
+                    </p>
+                </div>
+            </a>
+        </div>
+    </div>
 </div>
-
-<h1>매칭방 목록</h1>
-<!-- 성공 메시지 -->
-<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-
-<table class="table table-bordered">
-    <thead class="thead-dark">
-    <tr>
-        <!-- 추가: 이미지 열 -->
-        <th>이미지</th>
-        <th>제목</th>
-        <th>장소</th>
-        <th>날짜</th>
-        <th>시간</th>
-        <th>작성자</th> <!-- Host → User로 변경 -->
-        <th>참가 인원</th>
-        <th>액션</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="room : ${rooms}">
-        <!-- 이미지 표시 -->
-        <td>
-            <img th:if="${room.imageUrl != null}"
-                 th:src="${room.imageUrl}"
-                 alt="이미지"
-                 class="thumb-img"/>
-            <img th:if="${room.imageUrl == null}"
-                 th:src="@{/img/thumbnail-default.svg}"
-                 alt="기본이미지"
-                 class="thumb-img"/>
-        </td>
-        <td th:text="${room.title}">Title</td>
-        <td th:text="${room.place}">Place</td>
-        <td th:text="${#temporals.format(room.meetingDate, 'yyyy-MM-dd')}">Date</td>
-        <td th:text="${#temporals.format(room.meetingTime, 'HH:mm')}">Time</td>
-        <td th:text="${room.user.name}">User</td> <!-- host → user -->
-        <td th:text="${room.currentParticipants} + '/' + ${room.maxParticipants}">Participants</td>
-        <td>
-            <a th:href="@{/matching/detail/{id}(id=${room.roomId})}" class="btn btn-primary btn-sm">상세보기</a>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<a th:href="@{/matching/create}" class="btn btn-success btn-create">매칭방 생성</a>
-
-<script>
-    function logout() {
-        // 로그아웃 예시
-        fetch('/logout', { method: 'GET', credentials: 'include' })
-            .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
-                } else {
-                    window.location.href = '/user/login';
-                }
-            })
-            .catch(error => {
-                console.error('로그아웃 중 오류 발생:', error);
-                alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
-            });
-    }
-</script>
-
+<!-- 외부 JS 파일 링크 -->
+<script th:src="@{/js/list.js}"></script>
+<!-- jQuery, Popper.js, Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Initialize Bootstrap tooltips -->
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
 </body>
 </html>

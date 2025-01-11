@@ -1,0 +1,184 @@
+@charset "UTF-8";
+/* calendar */
+#calendarContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.calendar-header {display: flex; align-items: center;
+    margin: 20px 0;
+}
+.calendar-header .year {
+    font-size: 35px;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+
+}
+.calendar-header button {margin: 0 10px 0 auto;}
+.calendar-header a.calendarRegister {width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;}
+
+.calendar-board {flex: 1;
+    overflow: auto;}
+.calendar-board .month-wrap {display: flex; margin: 0 0 100px;}
+.calendar-board .month {    flex: none;
+    width: 100px;
+    font-size: 25px;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+}
+.calendar-board .days-wrap {
+    flex: 1;
+}
+.calendar-board .days-wrap .days {display: flex; flex-wrap: wrap;
+    gap: 1px;
+    background: #D9D9D9;
+    border-bottom: 1px solid #D9D9D9;
+}
+.calendar-board .days-wrap .days li {
+    width: calc((100% - 6px) / 7);
+    min-height: 120px;
+    background: #fff;
+
+}
+.calendar-board .days-wrap .days li a {
+    display: block;
+    height: 100%;
+}
+.calendar-board .days-wrap .days li a .tag {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px;
+}
+.calendar-board .days-wrap .days li a .schedule {
+    display: flex;
+    font-size: 12px;
+    padding: 3px 10px;
+    background: #F5F5F5;
+    letter-spacing: -0.05em;
+    white-space: nowrap;
+}
+.calendar-board .days-wrap .days li a .schedule .title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 10px 0 0;
+}
+.calendar-board .days-wrap .days li a .schedule .time {
+    flex: none;
+}
+
+.calendar-board .days-wrap .days.week {}
+.calendar-board .days-wrap .days.week li {
+    background: #F5F5F5;
+    min-height: unset;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px;
+}
+
+.calendar-board .days-wrap .days li.holiday a .tag {color: #F61414;}
+
+
+
+
+
+.cal-read-header {display: flex; align-items: center; margin: 0 0 30px;}
+.cal-read-header h1 {font-size: 30px;font-weight: 800; letter-spacing: -0.05em;}
+.cal-read-header button {margin: 0 10px 0 auto;}
+.cal-read-header a.calendarRegister {width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;}
+
+.cal-read-days ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow: auto;
+}
+.cal-read-days ul::-webkit-scrollbar {display: none;}
+.cal-read-days ul li {
+    flex: none;
+    margin: 0 10px;
+}
+.cal-read-days ul li .day {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+}
+.cal-read-days ul li .tag {
+    text-align: center;
+    font-size: 12px;
+    color: #000;
+    margin: 5px 0 0;
+}
+.cal-read-days ul li.holiday .day {color: #F61414;}
+.cal-read-days ul li.holiday .tag {color: #F61414;}
+.cal-read-days ul li.on .day {background: #f5f5f5;}
+.cal-read-days ul li.active .day {color: #fff; background: #000;}
+
+
+.calendar-detail {
+    margin: 50px 0 0;
+}
+.calendar-detail > ul {}
+.calendar-detail > ul > li {
+    position: relative;
+    padding: 0 0 0 100px;
+}
+.calendar-detail > ul > li .time {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 12px;
+    color: #a5a5a5;
+    font-weight: 600;
+    letter-spacing: -0.05em;
+}
+.calendar-detail > ul > li .card-wrap {
+    margin: 15px 0 0;
+    padding: 15px 0 0;
+    border-top: 1px solid #f0f0f0;
+}
+.calendar-detail > ul > li .card-wrap .card {
+    background: #F5F5F5;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-radius: 15px;
+}
+.calendar-detail > ul > li .card-wrap .card .thumb {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.calendar-detail > ul > li .card-wrap .card .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.calendar-detail > ul > li .card-wrap .card .title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 0 15px;
+}
+.calendar-detail > ul > li .card-wrap .card .vertical {margin: 0 0 0 auto;}
+
+
+
+
+
+
+
+
+
+
+

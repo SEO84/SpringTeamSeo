@@ -22,9 +22,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
+import java.util.*;
 
 @Log4j2
 @Controller
@@ -51,15 +53,38 @@ public class MatchingController {
     }
 
     @GetMapping("/list")
-    public String list(Model model, HttpSession session) {
+    public String list(Model model,
+                       @RequestParam(value = "query", required = false) String query,
+                       HttpSession session) {
         User loginUser = getManagedLoginUser(session);
         if (loginUser == null) {
             return "redirect:/user/login";
         }
-        List<MatchingRoom> rooms = matchingService.getAllRooms();
-        model.addAttribute("rooms", rooms);
+
+        // 모든 매칭방 리스트 가져오기
+        List<MatchingRoomDTO> allRooms = matchingService.getAllRooms();
+
+        // 검색어가 있을 경우 필터링된 매칭방 리스트 가져오기
+        List<MatchingRoomDTO> filteredRooms = Collections.emptyList();
+        if (query != null && !query.trim().isEmpty()) {
+            filteredRooms = matchingService.getRoomsByQuery(query);
+        }
+
+        // 상위 5개의 키워드
+        List<String> topKeywords = matchingService.getTopKeywords(5);
+
+        // 모델에 데이터 추가
+        model.addAttribute("allRooms", allRooms); // 모든 방
+        model.addAttribute("filteredRooms", filteredRooms); // 검색된 방
+        model.addAttribute("keywords", topKeywords); // 인기 키워드
+        model.addAttribute("query", query); // 검색어 유지
+
         return "matching/list";
     }
+
+
+
+
 
     @GetMapping("/create")
     public String createForm(HttpSession session, Model model) {
@@ -101,18 +126,29 @@ public class MatchingController {
         try {
             if (imageFile != null && !imageFile.isEmpty()) {
                 String originalFilename = imageFile.getOriginalFilename();
-                String savedImageUrl = "/upload/" + originalFilename;
-                dto.setImageUrl(savedImageUrl);
+                // 고유한 파일명을 생성하여 저장
+                String uniqueFileName = UUID.randomUUID().toString() + "_" + originalFilename;
+                String uploadDir = "C:/upload/"; // 실제 서버 환경에 맞게 수정
+                File uploadDirectory = new File(uploadDir);
+                if (!uploadDirectory.exists()) {
+                    uploadDirectory.mkdirs(); // 디렉토리 생성
+                }
+
+                File destinationFile = new File(uploadDirectory, uniqueFileName);
+                imageFile.transferTo(destinationFile);
+
+                String savedProfilePicture = "/upload/" + uniqueFileName;
+                dto.setProfilePicture(savedProfilePicture);
             }
 
             matchingService.createRoom(dto, loginUser);
             redirectAttributes.addFlashAttribute("successMessage", "매칭방이 성공적으로 생성되었습니다.");
             return "redirect:/matching/list";
 
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e) {
             List<Pet> userPets = petService.findAllByUserId(loginUser.getUserId());
             model.addAttribute("userPets", userPets);
-            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("errorMessage", "매칭방 생성 중 오류가 발생했습니다: " + e.getMessage());
             return "matching/create";
         }
     }
@@ -130,7 +166,46 @@ public class MatchingController {
 
         try {
             MatchingRoom room = matchingService.getRoomById(roomId);
-            populateModelForDetail(model, room, loginUser);
+//            populateModelForDetail(model, room, loginUser);
+            List<RoomParticipant> participants = matchingService.getParticipantsByRoomId(roomId);
+
+            // 대기(Pending)/승인(Accepted) 구분
+            List<RoomParticipant> pending = matchingService.filterParticipants(
+                    participants, RoomParticipant.ParticipantStatus.Pending);
+            List<RoomParticipant> accepted = matchingService.filterParticipants(
+                    participants, RoomParticipant.ParticipantStatus.Accepted);
+
+            // 호스트 여부
+            boolean isHost = room.getUser().getUserId().equals(loginUser.getUserId());
+
+            // pendingMap
+            Map<User, List<Pet>> pendingMap = matchingService.getPendingUserPets(room);
+            model.addAttribute("pendingMap", pendingMap);
+            // acceptedMap 만들기
+            // (Map<User, List<Pet>>) user->pets
+            Map<User, List<Pet>> acceptedMap = matchingService.getAcceptedUserPets(room);
+            if (acceptedMap == null) {
+                acceptedMap = new HashMap<>(); // ★ null 방지
+            }
+
+            // 모델에 담기
+            model.addAttribute("room", matchingService.convertToDto(room)); // 변경된 부분
+            model.addAttribute("pendingParticipants", pending);
+            model.addAttribute("acceptedParticipants", accepted);
+            model.addAttribute("acceptedMap", acceptedMap);
+            model.addAttribute("isHost", isHost);
+            log.info("Accepted map size: {}", acceptedMap.size());
+
+            // 호스트가 아닌 경우만 userPets 준비 (유저가 신청 모달에서 선택)
+            if (!isHost) {
+                List<Pet> userPets = petService.findAllByUserId(loginUser.getUserId());
+                model.addAttribute("userPets", userPets);
+
+                // 사용자가 이미 신청했는지 여부 확인
+                boolean hasApplied = matchingService.hasUserApplied(room, loginUser);
+                model.addAttribute("hasApplied", hasApplied);
+            }
+
             return "matching/detail";
         } catch (ResourceNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -190,21 +265,39 @@ public class MatchingController {
         }
 
         try {
+            // 이미지 파일 업로드 처리
             if (imageFile != null && !imageFile.isEmpty()) {
                 String originalFilename = imageFile.getOriginalFilename();
-                String savedImageUrl = "/upload/" + originalFilename;
-                dto.setImageUrl(savedImageUrl);
+                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
+
+                // 업로드 디렉토리 경로 설정
+                String uploadDir = "C:/upload/";
+                File uploadDirectory = new File(uploadDir);
+                if (!uploadDirectory.exists()) {
+                    uploadDirectory.mkdirs(); // 디렉토리 생성
+                }
+
+                // 파일 저장
+                File destinationFile = new File(uploadDirectory, uniqueFileName);
+                imageFile.transferTo(destinationFile);
+
+                // 저장된 파일의 URL 설정
+                String savedProfilePicture = "/upload/" + uniqueFileName;
+                dto.setProfilePicture(savedProfilePicture);
             }
 
+            // 매칭방 정보 업데이트
             matchingService.updateRoom(roomId, dto, loginUser);
 
             redirectAttributes.addFlashAttribute("successMessage", "매칭방이 성공적으로 수정되었습니다.");
             return "redirect:/matching/detail/" + roomId;
 
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             List<Pet> userPets = petService.findAllByUserId(loginUser.getUserId());
             model.addAttribute("userPets", userPets);
-            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("errorMessage", "매칭방 수정 중 오류가 발생했습니다.");
+            e.printStackTrace();
             return "matching/edit";
         }
     }
@@ -270,14 +363,18 @@ public class MatchingController {
         }
 
         try {
+            log.info("User {} is applying to room {}", loginUser.getUserId(), roomId);
+            log.info("Selected pet IDs: {}", additionalPetIds);
             matchingService.applyRoom(roomId, loginUser.getUserId(), additionalPetIds);
             redirectAttributes.addFlashAttribute("successMessage", "참가 신청이 성공적으로 완료되었습니다.");
         } catch (RuntimeException e) {
+            log.error("Error applying to room: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
 
         return "redirect:/matching/detail/" + roomId;
     }
+
 
     @PostMapping("/accept/{roomId}/{userId}")
     public String acceptParticipant(@PathVariable("roomId") Long roomId,
@@ -309,27 +406,5 @@ public class MatchingController {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return null;
         return userRepository.findById(loginUser.getUserId()).orElse(null);
-    }
-
-    private void populateModelForDetail(Model model, MatchingRoom room, User loginUser) {
-        model.addAttribute("room", room);
-        model.addAttribute("loginUser", loginUser);
-
-        List<RoomParticipant> participants = matchingService.getParticipantsByRoomId(room.getRoomId());
-        List<RoomParticipant> pendingParticipants =
-                matchingService.filterParticipants(participants, RoomParticipant.ParticipantStatus.Pending);
-        List<RoomParticipant> acceptedParticipants =
-                matchingService.filterParticipants(participants, RoomParticipant.ParticipantStatus.Accepted);
-
-        model.addAttribute("pendingParticipants", pendingParticipants);
-        model.addAttribute("acceptedParticipants", acceptedParticipants);
-
-        boolean isHost = room.getUser().getUserId().equals(loginUser.getUserId());
-        model.addAttribute("isHost", isHost);
-
-        if (!isHost) {
-            List<Pet> userPets = petService.findAllByUserId(loginUser.getUserId());
-            model.addAttribute("userPets", userPets);
-        }
     }
 }

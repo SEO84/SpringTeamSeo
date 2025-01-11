@@ -4,13 +4,18 @@ import com.busanit501.bootproject.domain.MatchingRoom;
 import com.busanit501.bootproject.domain.RoomParticipant;
 import com.busanit501.bootproject.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
 public interface RoomParticipantRepository extends JpaRepository<RoomParticipant, Long> {
-
+    @Modifying
+    @Query("DELETE FROM RoomParticipant rp WHERE rp.matchingRoom = :room AND rp.user = :user")
+    void deleteAllByMatchingRoomAndUser(@Param("room") MatchingRoom room, @Param("user") User user);
     /**
      * 특정 매칭방과 사용자에 대한 참가자 목록을 조회합니다.
      *
@@ -42,4 +47,6 @@ public interface RoomParticipantRepository extends JpaRepository<RoomParticipant
     void deleteAllByMatchingRoom(MatchingRoom matchingRoom);
     // MatchingRoom ID와 ParticipantStatus를 기반으로 참가자 조회
     List<RoomParticipant> findAllByMatchingRoom_RoomIdAndStatus(Long roomId, RoomParticipant.ParticipantStatus status);
+
+    List<RoomParticipant> findAllByMatchingRoomAndStatus(MatchingRoom room, RoomParticipant.ParticipantStatus participantStatus);
 }

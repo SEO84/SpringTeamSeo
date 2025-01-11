@@ -44,5 +44,8 @@ public class Pet extends BaseEntity {
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault = false;
 
-    private String imageUrl;
+
+//     ★ 새로 추가: 반려동물 프로필 사진 URL
+    @Column(name = "profile_picture")
+    private String profilePicture;
 }

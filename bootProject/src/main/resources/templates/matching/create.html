@@ -1,126 +1,145 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>매칭방 생성</title>
-    <!-- 커스텀 CSS -->
-    <link rel="stylesheet" th:href="@{/css/create.css}">
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
+<!doctype html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="www.thymeleaf.org"
+      layout:decorate="~{layout/base.html}">
 <body>
-<div class="container my-5">
-    <h1 class="mb-4">매칭방 생성</h1>
+<!-- content -->
+<div layout:fragment="content">
+    <style>
+        #side .sideMenu li.sideMenuMatching a {background: #F5F5F5;}
+    </style>
 
-    <!--
-      form: multipart/form-data -> 이미지 업로드
-      th:object="${matchingRoomDTO}" -> DTO 바인딩
-    -->
-    <form th:action="@{/matching/create}" th:object="${matchingRoomDTO}"
-          method="post" enctype="multipart/form-data">
+    <div class="registerContainer">
+        <form th:action="@{/matching/create}" th:object="${matchingRoomDTO}"
+              method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input">
+                        <div class="title">이미지</div>
+                        <div>
+                            <input type="file" name="imageFile" id="imageFile" class="input" multiple onchange="previewImage(event)">
+                            <button type="button" class="btn btn-primary uploadBtn" onclick="document.getElementById('imageFile').click()">
+                                업로드하기
+                            </button>
+                        </div>
+                        <div class="mt-3">
+                            <img id="imagePreview" src="" alt="이미지 미리보기" style="max-width: 200px; display: none;">
+                        </div>
+                    </div>
+                </div>
 
-        <!-- 에러 메시지 (유효성 검사) -->
-        <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
-            <ul>
-                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
-            </ul>
-        </div>
 
-        <!-- 이미지 업로드 섹션 -->
-        <div class="form-group mb-3">
-            <label>이미지 업로드</label>
-            <div class="d-flex">
-                <input type="file" name="imageFile" class="form-control-file" id="imageFile"
-                       onchange="previewImage(event)">
-                <button type="button" class="btn btn-secondary ms-2"
-                        onclick="document.getElementById('imageFile').click()">
-                    찾기
-                </button>
             </div>
-            <!-- 미리보기 -->
-            <div class="mt-3">
-                <img id="imagePreview" src="" alt="이미지 미리보기"
-                     style="max-width: 300px; display: none;">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input">
+                        <div class="title">모임장소</div>
+                        <div>
+                            <input type="text" th:field="*{place}"  class="input" placeholder="주소 입력">
+                            <button type="button" class="btn btn-primary uploadBtn">주소찾기</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <!-- 모임장소 -->
-        <div class="form-group mb-3">
-            <label>모임장소</label>
-            <div class="input-group">
-                <input type="text" th:field="*{place}"
-                       class="form-control" placeholder="주소 입력">
-                <button type="button" class="btn btn-dark"
-                        onclick="alert('주소찾기 기능은 미구현')">
-                    주소찾기
-                </button>
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input">
+                        <div class="title">모임날짜</div>
+                        <div>
+                            <input type="date" th:field="*{meetingDate}" class="input">
+                        </div>
+                    </div>
+                </div>
             </div>
-            <span th:if="${#fields.hasErrors('place')}"
-                  th:errors="*{place}" class="text-danger"></span>
-        </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input">
+                        <div class="title">모임시간</div>
+                        <div>
+                            <input type="time" th:field="*{meetingTime}" class="input">
+                        </div>
+                    </div>
+                    <div class="input">
+                        <div class="title">모임인원</div>
+                        <div>
+                            <input type="number" th:field="*{maxParticipants}" class="input" min="1" max="10">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 사용자 펫 선택 (multiple) -->
+            <div class="form-group mb-3">
+                <label>사용자 펫 선택</label>
+                <div>
+                    <div class="form-check-container" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <div class="form-check" th:each="pet : ${userPets}" style="display: flex; align-items: center; gap: 5px;">
+                            <input class="form-check-input" type="checkbox" th:field="*{petIds}"
+                                   th:value="${pet.petId}" th:id="|pet_${pet.petId}|"
+                                   style="width: 15px; height: 15px;" />
+                            <label class="form-check-label" th:for="|pet_${pet.petId}|">
+                                [[${pet.name}]]
+                            </label>
+                        </div>
+                    </div>
 
-        <!-- 모임 날짜 -->
-        <div class="form-group mb-3">
-            <label>모임날짜</label>
-            <input type="date" th:field="*{meetingDate}" class="form-control">
-            <span th:if="${#fields.hasErrors('meetingDate')}"
-                  th:errors="*{meetingDate}" class="text-danger"></span>
-        </div>
+                </div>
+            </div>
 
-        <!-- 모임 시간 -->
-        <div class="form-group mb-3">
-            <label>모임시간</label>
-            <input type="time" th:field="*{meetingTime}" class="form-control">
-            <span th:if="${#fields.hasErrors('meetingTime')}"
-                  th:errors="*{meetingTime}" class="text-danger"></span>
-        </div>
-
-        <!-- 모임 인원 -->
-        <div class="form-group mb-3">
-            <label>모임인원</label>
-            <input type="number" th:field="*{maxParticipants}" class="form-control" min="1" max="100">
-            <span th:if="${#fields.hasErrors('maxParticipants')}"
-                  th:errors="*{maxParticipants}" class="text-danger"></span>
-        </div>
-
-        <!-- 사용자 펫 선택 (multiple) -->
-        <div class="form-group mb-3">
-            <label>사용자 펫 선택 (중복선택 가능)</label>
-            <select th:field="*{petIds}" class="form-control" multiple>
-                <option th:each="pet : ${userPets}"
-                        th:value="${pet.petId}"
-                        th:text="${pet.name}"></option>
-            </select>
-        </div>
-
-        <!-- 제목 -->
-        <div class="form-group mb-3">
-            <label>제목</label>
-            <input type="text" th:field="*{title}" class="form-control">
-            <span th:if="${#fields.hasErrors('title')}"
-                  th:errors="*{title}" class="text-danger"></span>
-        </div>
-
-        <!-- 내용 (설명/규칙) -->
-        <div class="form-group mb-3">
-            <label>내용 및 규칙</label>
-            <textarea th:field="*{description}" class="form-control" rows="5"></textarea>
-            <span th:if="${#fields.hasErrors('description')}"
-                  th:errors="*{description}" class="text-danger"></span>
-        </div>
-
-        <!-- 하단 버튼: 취소 & 완료 -->
-        <div class="mt-4 text-center">
-            <a th:href="@{/matching/list}" class="btn btn-secondary me-3">취소</a>
-            <button type="submit" class="btn btn-dark">완료</button>
-        </div>
-    </form>
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input">
+                        <div class="title">제목</div>
+                        <div>
+                            <input type="text" th:field="*{title}" class="input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input">
+                        <div class="title">내용 및 규칙</div>
+                        <div>
+                            <textarea type="text" th:field="*{description}" rows="5"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="btn-box">
+                <a th:href="@{/matching/list}" class="btn btn-gray">취소</a>
+                <button type="submit" class="btn btn-dark">작성</button>
+            </div>
+        </form>
+    </div>
 </div>
+<!-- content -->
 
-<!-- 이미지 미리보기 JS -->
-<script th:src="@{/js/create.js}"></script>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- javascript -->
+<script layout:fragment="javascript" th:inline="javascript">
+
+    function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById('imagePreview');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result; // 이미지 미리보기 src 설정
+                preview.style.display = 'block'; // 이미지 보이기
+            };
+
+            reader.readAsDataURL(input.files[0]); // 파일을 읽어 데이터 URL 생성
+        } else {
+            preview.src = '';
+            preview.style.display = 'none'; // 파일 선택 해제 시 이미지 숨기기
+        }
+    }
+
+
+</script>
+<!-- javascript -->
+
+
 </body>
 </html>
